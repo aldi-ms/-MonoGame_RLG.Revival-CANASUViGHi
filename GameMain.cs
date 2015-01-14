@@ -16,7 +16,7 @@ namespace CanasUvighi
     /// </summary>
     public class GameMain : Game
     {
-        #region Variables
+        #region Fields
         // Game window resolution
         // 1024 x 640 is 16:10 aspect ratio
         private const int
@@ -49,10 +49,12 @@ namespace CanasUvighi
             square18,
          * */
 
-        // Game view elements
+        // gameBox is the rectangle containing
+        // the actual game field/board
         private Rectangle
             gameBox;
         private List<Rectangle> windowBorders;
+
         private Map map;
         private GameData gameData;
 
@@ -112,7 +114,7 @@ namespace CanasUvighi
         protected override void LoadContent()
         {
             // Load game data first of all (DB).
-            this.gameData = new GameData();
+            gameData = new GameData();
 
             // Create a new SpriteBatch, which can be used to draw textures
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -127,9 +129,9 @@ namespace CanasUvighi
             square18 = Content.Load<SpriteFont>("Square18");
              * */
 
-            consolas12 = Content.Load<SpriteFont>("Consolas12");                // Debug
-            instruction22= Content.Load<SpriteFont>("Instruction22");           // Headlines. No lowcap letters.
-            K8KurrierFixed20 =  Content.Load<SpriteFont>("K8KurierFixed20");    // Great Courier. Use for map/visual characters.
+            consolas12 = Content.Load<SpriteFont>("Consolas12");                // For debug purposes.
+            instruction22 = Content.Load<SpriteFont>("Instruction22");           // Headlines. No lowcap letters.
+            K8KurrierFixed20 = Content.Load<SpriteFont>("K8KurierFixed20");    // Great Courier. Use for map/visual characters.
             specialElite22 = Content.Load<SpriteFont>("SpecialElite22");        // Objectives, text, explanations, etc.
 
 
@@ -146,19 +148,20 @@ namespace CanasUvighi
             #endregion
 
             // Create and configure a Menu, which will be used as the Game's Main Menu
-            this.mainMenu = new Menu(this.spriteBatch, this.fontColor, new Color(232, 221, 203));
-            this.mainMenu.ConfigureMenu(this.MainMenuItems());
+            mainMenu = new Menu(this.spriteBatch, this.fontColor, new Color(232, 221, 203));
+            mainMenu.ConfigureMenu(this.MainMenuItems(this.instruction22, this.specialElite22));
+
             // Indicates that we are in the game menu.
-            this.inMenu = true;
+            inMenu = true;
 
             // Initialize visual borders.
-            SetupBorderRectangles();
+            SetupWindowBorders();
 
             // initialize a list for the units
-            this.unitActors = new List<Unit>();
+            unitActors = new List<Unit>();
 
             // get a state for the oldState of keyboard
-            this.oldKBState = Keyboard.GetState();
+            oldKBState = Keyboard.GetState();
                         
             // TODO: use this.Content to load your game content here
         }
@@ -183,13 +186,13 @@ namespace CanasUvighi
             // TODO: Add your update logic here
 
             // Get the current KB state
-            this.newKBState = Keyboard.GetState();
+            newKBState = Keyboard.GetState();
 
             if (CheckKeys(Keys.Escape))
             {
                 if (inMenu)
                 {
-                    this.Quit();
+                    Quit();
                 }
                 if (inGame)
                 {
@@ -204,25 +207,25 @@ namespace CanasUvighi
                 // Down
                 if (CheckKeys(Keys.Down))
                 {
-                    this.mainMenu.Next();
+                    mainMenu.Next();
                 }
 
                 // Up
                 if (CheckKeys(Keys.Up))
                 {
-                    this.mainMenu.Previous();
+                    mainMenu.Previous();
                 }
 
                 // Enter
                 if (CheckKeys(Keys.Enter))
                 {
                     inMenu = false; 
-                    int choice = this.mainMenu.Choose();
+                    //int choice = this.mainMenu.Choose();
 
-                    switch (choice)
+                    switch (this.mainMenu.Choose())
                     {
                         case 0: 
-                            this.NewGame(); 
+                            NewGame(); 
                             break;
                         case 3:
                             Quit(); 
@@ -236,7 +239,7 @@ namespace CanasUvighi
             #endregion
 
             #region In Game
-            if (this.inGame)
+            if (inGame)
             {
                 // Spawn npc unit
                 if (CheckKeys(Keys.Q))
@@ -376,7 +379,7 @@ namespace CanasUvighi
             else if (inMenu)
                 GraphicsDevice.Clear(new Color(3, 54, 73));
 
-            this.spriteBatch.Begin();
+            spriteBatch.Begin();
             
             // Define basic Texture2D element for drawing
             Texture2D simpleTexture = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
@@ -385,49 +388,50 @@ namespace CanasUvighi
             if (inMenu)
             {
                 // Begin with main menu
-                this.mainMenu.Draw();
+                mainMenu.Draw();
             }
             else if (inGame)
             {
                 // This is the gameBox background
-                this.spriteBatch.Draw(simpleTexture, this.gameBox, this.backgroundColor);
+                spriteBatch.Draw(simpleTexture, gameBox, backgroundColor);
 
                 #region Draw grid
-                /*
+                /* *
+                bool drawGrid = true;
                 if (drawGrid)
                 {
-                    for (int rows = this.gameBox.Y; rows < this.gameBox.Y + this.gameBox.Height; rows += TILE_SIZE)
+                    for (int rows = gameBox.Y; rows < gameBox.Y + gameBox.Height; rows += TILE_SIZE)
                     {
-                        var tempRect = new Rectangle(this.gameBox.X, rows, this.gameBox.Width, 1);
-                        this.spriteBatch.Draw(simpleTexture, tempRect, Color.DarkSlateGray);
+                        var tempRect = new Rectangle(gameBox.X, rows, gameBox.Width, 1);
+                        spriteBatch.Draw(simpleTexture, tempRect, Color.DarkSlateGray);
                     }
-                    for (int cols = this.gameBox.X; cols < this.gameBox.Y + this.gameBox.Width; cols += TILE_SIZE)
+                    for (int cols = gameBox.X; cols < gameBox.Y + gameBox.Width; cols += TILE_SIZE)
                     {
-                        var tempRect = new Rectangle(cols, this.gameBox.Y, 1, this.gameBox.Height);
-                        this.spriteBatch.Draw(simpleTexture, tempRect, Color.DarkSlateGray);
+                        var tempRect = new Rectangle(cols, gameBox.Y, 1, gameBox.Height);
+                        spriteBatch.Draw(simpleTexture, tempRect, Color.DarkSlateGray);
                     }
                 }
-                */
+                * */
                 #endregion
 
                 #region Draw window & gameBox borders
                 // draw the window borders
                 for (int i = 0; i < windowBorders.Count; i++)
                 {
-                    this.spriteBatch.Draw(simpleTexture, windowBorders[i], this.borderColor);
+                    spriteBatch.Draw(simpleTexture, windowBorders[i], this.borderColor);
                 }
 
                 // gameBox left border
-                this.spriteBatch.Draw(simpleTexture, new Rectangle(this.gameBox.Width, 10, 10, this.gameBox.Height), this.borderColor);
+                spriteBatch.Draw(simpleTexture, new Rectangle(this.gameBox.Width, 10, 10, this.gameBox.Height), this.borderColor);
 
                 // gameBox bottom border
-                this.spriteBatch.Draw(simpleTexture, new Rectangle(10, this.gameBox.Height + 10, this.gameBox.Width, 10), this.borderColor);
+                spriteBatch.Draw(simpleTexture, new Rectangle(10, this.gameBox.Height + 10, this.gameBox.Width, 10), this.borderColor);
                 #endregion
 
                 #region Draw Map
 
-                int viewBoxTilesHeight = this.gameBox.Height / TILE_SIZE,
-                    viewBoxTilesWidth = this.gameBox.Width / TILE_SIZE;
+                int viewBoxTilesHeight = gameBox.Height / TILE_SIZE,
+                    viewBoxTilesWidth = gameBox.Width / TILE_SIZE;
 
                 for (int x = 0; x < viewBoxTilesHeight; x++)
                 {
@@ -435,11 +439,11 @@ namespace CanasUvighi
                     {
                         Vector2 vect = new Vector2(14 + y * TILE_SIZE, 10 + x * TILE_SIZE);
 
-                        this.spriteBatch.DrawString(
-                            this.K8KurrierFixed20,
-                            this.map.GetTileVisual(x, y),
+                        spriteBatch.DrawString(
+                            K8KurrierFixed20,
+                            map.GetTileVisual(x, y),
                             vect,
-                            this.fontColor);
+                            fontColor);
                     }
                 }
 
@@ -454,12 +458,12 @@ namespace CanasUvighi
             {
                 debugInfo = //Newtonsoft.Json.JsonConvert.SerializeObject(this.map.GetTerrain(PC.X, PC.Y).ToJSONTerrain());
                     //string.Format("row:{0};col:{1};ttl_time:{2}", this.PC.X, this.PC.Y, gameTime.TotalGameTime);
-                string.Format("row:{0};col:{1};turns:{2}", this.PC.X, this.PC.Y, this.turns);
+                string.Format("[{0};{1}]({2}turns)", PC.X, PC.Y, turns);
                 //string.Format("x:{0},y:{1}", mouse.X, mouse.Y);
                 //string.Format("gameBox[x:{0};y:{1};width:{2};height{3};]", gameBox.X, gameBox.Y, gameBox.Width, gameBox.Height);
             }
 
-            this.spriteBatch.DrawString(consolas12, debugInfo, new Vector2(15, GraphicsDevice.Viewport.Height - 32), this.fontColor);
+            spriteBatch.DrawString(consolas12, debugInfo, new Vector2(15, GraphicsDevice.Viewport.Height - 32), this.fontColor);
             #endregion
 
             #region Font testing
@@ -474,7 +478,7 @@ namespace CanasUvighi
             */
             #endregion
 
-            this.spriteBatch.End();
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
@@ -488,40 +492,42 @@ namespace CanasUvighi
             int x = GraphicsDevice.Viewport.Height / TILE_SIZE;
             int y = GraphicsDevice.Viewport.Width / TILE_SIZE;
 
-            this.map = new Map(
-                "Testing map", 
+            map = new Map(
+                "TEST_MAP", 
                 new FlatArray<Tile>(x, y), 
                 new GameData(),
-                true
-                );
+                true);
 
             // check for first free coordinates for PC
-            int pcX = 0, pcY = 0;
-            bool leave = false;
+            int pcX = 0,
+                pcY = 0;
+            bool outerBreak = false;
             for (int i = 0; i < map.Height; i++)
             {
                 for (int j = 0; j < map.Width; j++)
                 {
-                    if (!this.gameData.TerrainDB[this.map.Tiles[i, j].Terrain].IsBlocked) 
+                    if (!map.GetTerrain(i, j).IsBlocked)
                     {
                         pcX = i;
                         pcY = j;
-                        leave = true;
+                        outerBreak = true;
                         break;
                     }
                 }
-                if (leave) break;
+
+                if (outerBreak) 
+                    break;
             }
 
             // create a Player Character and spawn it on the map
-            this.PC = new Unit(1, "SCiENiDE", "@", Color.LightGreen, this.map, 10, pcX, pcY);
-            this.PC.MakePlayerControl();
-            this.PC.Spawn();
+            PC = new Unit(1, "SCiENiDE", "@", Color.LightGreen, this.map, 10, pcX, pcY);
+            PC.MakePlayerControl();
+            PC.Spawn();
             // add PC to the unit list
-            this.unitActors.Add(this.PC);
+            unitActors.Add(PC);
 
             // indicate we are currently playing (in game)
-            this.inGame = true;
+            inGame = true;
         }      
         
         /// <summary>
@@ -535,8 +541,8 @@ namespace CanasUvighi
 
             foreach(var key in keysDown)
             {
-                if (this.oldKBState.IsKeyUp(key) &&
-                    this.newKBState.IsKeyDown(key))
+                if (oldKBState.IsKeyUp(key) &&
+                    newKBState.IsKeyDown(key))
                     result = true;
             }
             
@@ -544,11 +550,11 @@ namespace CanasUvighi
         }
 
         /// <summary>
-        /// Setup the border box of the game window.
+        /// Setup the border box of the game window as well as the gameBox.
         /// </summary>
-        private int SetupBorderRectangles()
+        private void SetupWindowBorders()
         {
-            this.windowBorders = new List<Rectangle> {
+            windowBorders = new List<Rectangle> {
                 // top border
                 new Rectangle(0, 0, GraphicsDevice.Viewport.Width, 10),
 
@@ -565,22 +571,24 @@ namespace CanasUvighi
             //(GraphicsDevice.Viewport.Height / TILE_SIZE) * numberOfTiles
 
             // define gameBox - the game view rectangle
-            this.gameBox = new Rectangle(
+            gameBox = new Rectangle(
                 10,
                 10,
                 (GraphicsDevice.Viewport.Width / 3) * 2,
                 (GraphicsDevice.Viewport.Height / 4) * 3
                 );
-
-            return this.windowBorders.Count;
         }
 
 
         // change menu items load from file (with JSON strings).
-        private MenuItem[] MainMenuItems()
+        /// <summary>
+        /// Create/Load menu items for the main menu.
+        /// </summary>
+        /// <param name="titleFont">SpriteFont used for the menu title.</param>
+        /// <param name="menuOptionsFont">SpriteFont used for menu options.</param>
+        /// <returns>Array of pre-defined MenuItems, ready for display.</returns>
+        private MenuItem[] MainMenuItems(SpriteFont titleFont, SpriteFont menuOptionsFont)
         {
-            SpriteFont titleFont = this.instruction22,
-                menuOptionsFont = this.specialElite22;
             MenuItem[] menuItems = 
             {
                 new MenuItem(
@@ -588,16 +596,14 @@ namespace CanasUvighi
                     "CANAS UViGHi",
                     new Vector2(20f, 10f),
                     false,
-                    false
-                    ),
+                    false),
 
                 new MenuItem(
                     menuOptionsFont,
                     "new game",
                     new Vector2(80f, 100f),
                     true,
-                    true
-                    ),
+                    true),
 
                 new MenuItem(
                     menuOptionsFont,
@@ -629,7 +635,9 @@ namespace CanasUvighi
         /// </summary>
         private void Quit()
         {
-            this.gameData.SaveToFiles();
+            gameData.UnitDB = unitActors;
+
+            gameData.Save();
             Exit();
         }
     }

@@ -73,6 +73,7 @@
     <Compile Include="Framework\CardinalDirection.cs" />
     <Compile Include="Framework\DrawString.cs" />
     <Compile Include="Framework\ObjectStringGenerator.cs" />
+    <Compile Include="Framework\TransitionalJSONClasses.cs" />
     <Compile Include="GameMain.cs" />
     <Compile Include="Framework\GameData.cs" />
     <Compile Include="Framework\FieldOfView.cs" />

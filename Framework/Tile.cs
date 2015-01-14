@@ -72,6 +72,11 @@ namespace CanasUvighi
         }
         #endregion
 
+        /// <summary>
+        /// Get the highest priority element contained in the tile.(Unit > Container > GameObj > Terrain)
+        /// </summary>
+        /// <param name="dbData"></param>
+        /// <returns>A string of the highest priority element.</returns>
         public string GetTileVisual(GameData dbData)
         {
             if (this.layers.Unit != 0)

@@ -10,7 +10,12 @@ namespace CanasUvighi
     {
         // Points to the default location of a terrain save file.
         private const string TERRAIN_FILE = @"../../../sav/terrain.sav";
+        private const string UNIT_FILE = @"../../../sav/unit.sav";
+
+        // Default encoding to use for files.
         private static readonly Encoding ENCODING = Encoding.UTF8;
+
+        // Loaded object lists (DBs)
         private List<Terrain> terrainDB;
         private List<Unit> unitDB;
 
@@ -24,7 +29,7 @@ namespace CanasUvighi
 
         #region Properties
         /// <summary>
-        /// Return a list of all terrains that exist in the loaded DB. Positions in list can be used as their "id".
+        /// Return a list of all terrains that exist in the loaded DB. Position in list can be used as their "id".
         /// </summary>
         public List<Terrain> TerrainDB
         {
@@ -34,35 +39,34 @@ namespace CanasUvighi
         public List<Unit> UnitDB
         {
             get { return this.unitDB; }
-        }
-
-        public void SaveToFiles()
-        {
-            this.SaveTerrainList();
+            set { this.unitDB = value; }
         }
         #endregion
 
-        private void SaveMap(FlatArray<Tile> gameWorld)
+        /// <summary>
+        /// Call to save all changes on previously loaded object lists (DBs).
+        /// </summary>
+        public void Save()
         {
-            for (int row = 0; row < gameWorld.Width; row++)
-            {
-                for (int col = 0; col < gameWorld.Height; col++)
-                {
-                    // . . .
-                }
-            }
+            SaveTerrainList();
+            SaveUnitList();
+        }
+
+        public void SaveMap(Map map)
+        {
+            // . . .
         }
         
         /// <summary>
-        /// Save the TerrainList.
+        /// Save the TerrainList. Overwrites old file!
         /// </summary>
         /// <param name="terrainFile">Path string to the location where the save file will be created.
-        /// Default is @"../../sav/terrain.sav". Overwrites old file.</param>
+        /// Default is const TERRAIN_FILE.</param>
         private void SaveTerrainList(string terrainFile = TERRAIN_FILE)
         {
             StringBuilder saveString = new StringBuilder();
 
-            foreach (var terrain in this.terrainDB)
+            foreach (Terrain terrain in terrainDB)
             {
                 saveString.Append(
                     JsonConvert.SerializeObject(terrain.ToJSONTerrain())
@@ -70,8 +74,31 @@ namespace CanasUvighi
                 saveString.Append('\n');
             }
 
-            // Save JSON terrain objects to file, overwrite with false!
+            // Save JSON terrain objects to file, overwrites with false!
             using (var sWriter = new StreamWriter(terrainFile, false, ENCODING))
+            {
+                sWriter.Write(saveString);
+            }
+        }
+
+        /// <summary>
+        /// Save the UnitList.  Overwrites old file!
+        /// </summary>
+        /// <param name="unitFile">Path string to the location where the save file will be created.
+        /// Default is const UNIT_FILE.</param>
+        private void SaveUnitList(string unitFile = UNIT_FILE) 
+        {
+            StringBuilder saveString = new StringBuilder();
+
+            foreach (Unit unit in unitDB) 
+            {
+                saveString.Append(
+                    JsonConvert.SerializeObject(unit.ToJSONUnit())
+                    );
+                saveString.Append('\n');
+            }
+
+            using (var sWriter = new StreamWriter(unitFile, false, ENCODING))
             {
                 sWriter.Write(saveString);
             }
@@ -80,7 +107,7 @@ namespace CanasUvighi
         /// <summary>
         /// Load the TerrainList from a previously saved file. Called at constructor time.
         /// </summary>
-        /// <param name="terrainFile">The save file to read from. Default is @"../../../sav/terrain.sav".</param>
+        /// <param name="terrainFile">The save file to read from. Default is const TERRAIN_FILE.</param>
         /// <returns>Returns the TerrainList.</returns>
         private List<Terrain> LoadTerrain(string terrainFile = TERRAIN_FILE)
         {

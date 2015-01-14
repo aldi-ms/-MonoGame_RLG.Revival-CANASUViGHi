@@ -21,7 +21,7 @@ namespace CanasUvighi
         public Vector2 vector2;
 
         /// <summary>
-        /// Create a new element for future work on / drawing.
+        /// Create and keep a new element for drawing / editing.
         /// </summary>
         /// <param name="font">The SpriteFont used to draw this text.</param>
         /// <param name="str">The text we want drawn.</param>

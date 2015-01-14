@@ -15,8 +15,9 @@ namespace CanasUvighi
             y,
             speed,
             energy;
-        private string name;
-        private string visual;
+        private string
+            name,
+            visual;
         private Color color;
         private Map map;
 
@@ -172,12 +173,12 @@ namespace CanasUvighi
         /// </summary>
         public void Spawn()
         {
-            if (!this.hasSpawned)
+            if (!hasSpawned)
             {
                 if (ValidateMove(this.x, this.y))
                 {
-                    this.map.SetUnit(this.x, this.y, this.ID);
-                    this.hasSpawned = true;
+                    map.SetUnit(this.x, this.y, this.ID);
+                    hasSpawned = true;
                 }
             }
         }
@@ -185,6 +186,24 @@ namespace CanasUvighi
         public void MakePlayerControl()
         {
             this.isPlayerControl = true;
+        }
+        
+        public JSONUnit ToJSONUnit()
+        {
+            JSONUnit jsonUnit = new JSONUnit();
+            jsonUnit.isPlayerControl = this.isPlayerControl;
+            jsonUnit.hasSpawned = this.hasSpawned;
+            jsonUnit.id = this.id;
+            jsonUnit.x = this.x;
+            jsonUnit.y = this.y;
+            jsonUnit.speed = this.speed;
+            jsonUnit.energy = this.energy;
+            jsonUnit.name = this.name;
+            jsonUnit.visual = this.visual;
+            jsonUnit.color = this.color;
+            jsonUnit.map = this.map;
+
+            return jsonUnit;
         }
 
         /// <summary>

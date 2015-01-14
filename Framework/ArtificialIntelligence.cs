@@ -3,19 +3,19 @@
 namespace CanasUvighi
 {
     /// <summary>
-    /// AI class. Currently not really implemented AI.
+    /// AI class. Currently just for testing/future purposes.
     /// </summary>
     public static class AI
     {
         private static Random RNG = new Random();
 
         /// <summary>
-        /// Simplest way to move NPCs. (TESTING)
+        /// Test-move NPCs.
         /// </summary>
-        /// <returns>Random int [0-8) to be parsed to Cardinal Direction.</returns>
-        public static int DrunkardWalk()
+        /// <returns>Random CardinalDirection.</returns>
+        public static CardinalDirection DrunkardWalk()
         {
-            return RNG.Next(0, 8);
+            return (CardinalDirection)RNG.Next(0, 8);
         }
     }
 }

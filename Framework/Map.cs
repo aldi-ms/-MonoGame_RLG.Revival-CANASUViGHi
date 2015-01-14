@@ -76,6 +76,12 @@ namespace CanasUvighi
             return this.tiles[x, y].GetTileVisual(this.dbData);
         }
 
+        /// <summary>
+        /// Get the Terrain object at the specified map tile.
+        /// </summary>
+        /// <param name="x">X axis of the tile.</param>
+        /// <param name="y">Y axis of the tile.</param>
+        /// <returns>Terrain object.</returns>
         public Terrain GetTerrain(int x, int y)
         {
             return this.dbData.TerrainDB[this.tiles[x, y].Terrain];

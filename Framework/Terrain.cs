@@ -54,6 +54,10 @@ namespace CanasUvighi
         }
         #endregion
 
+        /// <summary>
+        /// Used for easier data transfer to JSON string.
+        /// </summary>
+        /// <returns></returns>
         public JSONTerrain ToJSONTerrain()
         {
             JSONTerrain jsonTerrain = new JSONTerrain();
@@ -64,22 +68,6 @@ namespace CanasUvighi
             jsonTerrain.isBlocked = this.isBlocked;
 
             return jsonTerrain;
-        }
-    }
-
-    public class JSONTerrain
-    {
-        public int id;
-        public string 
-            name,
-            visual;
-        public bool 
-            isTransparent, 
-            isBlocked;
-
-        public Terrain ToTerrain()
-        {
-            return new Terrain(this.id, this.name, this.visual, this.isTransparent, this.isBlocked);
         }
     }
 }
