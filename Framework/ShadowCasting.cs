@@ -51,7 +51,7 @@ namespace CanasUvighi
 
         public override void ComputeFOV()
         {
-            maxDepth = Math.Max(Map.grid.Height, Map.grid.Width);
+            maxDepth = Math.Max(Map.grid.X, Map.grid.Y);
 
             for (int octant = 1; octant < 9; octant++)
             {

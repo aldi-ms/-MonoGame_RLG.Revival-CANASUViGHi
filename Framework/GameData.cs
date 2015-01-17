@@ -24,7 +24,7 @@ namespace CanasUvighi
         /// </summary>
         public GameData()
         {
-            this.terrainDB = LoadTerrain();
+            this.terrainDB = LoadTerrain(TERRAIN_FILE);
         }
 
         #region Properties
@@ -48,21 +48,53 @@ namespace CanasUvighi
         /// </summary>
         public void Save()
         {
-            SaveTerrainList();
-            SaveUnitList();
+            SaveTerrainList(TERRAIN_FILE);
+            SaveUnitList(UNIT_FILE);
         }
 
         public void SaveMap(Map map)
         {
             // . . .
         }
-        
+
+        #region Unit
+        /// <summary>
+        /// Save the UnitList.  Overwrites old file!
+        /// </summary>
+        /// <param name="unitFile">Path string to the location
+        /// where the save file will be created.</param>
+        private void SaveUnitList(string unitFile) 
+        {
+            StringBuilder saveString = new StringBuilder();
+
+            foreach (Unit unit in unitDB) 
+            {
+                saveString.Append(
+                    JsonConvert.SerializeObject(unit.ToJSONUnit())
+                    );
+                saveString.Append('\n');
+            }
+
+            using (var sWriter = new StreamWriter(unitFile, false, ENCODING))
+            {
+                sWriter.Write(saveString);
+            }
+        }
+
+        private List<Unit> LoadUnitList(string unitFile)
+        {
+            // . . .
+            return new List<Unit>();
+        }
+        #endregion
+
+        #region Terrain
         /// <summary>
         /// Save the TerrainList. Overwrites old file!
         /// </summary>
-        /// <param name="terrainFile">Path string to the location where the save file will be created.
-        /// Default is const TERRAIN_FILE.</param>
-        private void SaveTerrainList(string terrainFile = TERRAIN_FILE)
+        /// <param name="terrainFile">String path to the location where the
+        /// save file will be created.</param>
+        private void SaveTerrainList(string terrainFile)
         {
             StringBuilder saveString = new StringBuilder();
 
@@ -82,34 +114,11 @@ namespace CanasUvighi
         }
 
         /// <summary>
-        /// Save the UnitList.  Overwrites old file!
-        /// </summary>
-        /// <param name="unitFile">Path string to the location where the save file will be created.
-        /// Default is const UNIT_FILE.</param>
-        private void SaveUnitList(string unitFile = UNIT_FILE) 
-        {
-            StringBuilder saveString = new StringBuilder();
-
-            foreach (Unit unit in unitDB) 
-            {
-                saveString.Append(
-                    JsonConvert.SerializeObject(unit.ToJSONUnit())
-                    );
-                saveString.Append('\n');
-            }
-
-            using (var sWriter = new StreamWriter(unitFile, false, ENCODING))
-            {
-                sWriter.Write(saveString);
-            }
-        }
-
-        /// <summary>
         /// Load the TerrainList from a previously saved file. Called at constructor time.
         /// </summary>
-        /// <param name="terrainFile">The save file to read from. Default is const TERRAIN_FILE.</param>
+        /// <param name="terrainFile">The save file to read from.</param>
         /// <returns>Returns the TerrainList.</returns>
-        private List<Terrain> LoadTerrain(string terrainFile = TERRAIN_FILE)
+        private List<Terrain> LoadTerrain(string terrainFile)
         {
             List<Terrain> loadedTerrains = new List<Terrain>();
 
@@ -129,5 +138,6 @@ namespace CanasUvighi
 
             return loadedTerrains;
         }
+        #endregion
     }
 }

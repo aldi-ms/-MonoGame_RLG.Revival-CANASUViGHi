@@ -35,16 +35,18 @@ namespace CanasUvighi
             x,
             y,
             speed,
-            energy;
+            energy, 
+            mapID;
         public string 
             name,
             visual;
         public Color color;
-        public Map map;
 
+        /* *
         public Unit ToUnit()
         {
             return new Unit(id, name, visual, color, map, speed, x, y);
         }
+         * */
     }
 }

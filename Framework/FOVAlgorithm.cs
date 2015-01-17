@@ -68,9 +68,9 @@ namespace CanasUvighi
 
         protected bool IsInMap(int x, int y)
         {
-            if (x < 0 || x >= map.grid.Height)
+            if (x < 0 || x >= map.grid.X)
                 return false;
-            if (y < 0 || y >= map.grid.Width)
+            if (y < 0 || y >= map.grid.Y)
                 return false;
 
             return true;

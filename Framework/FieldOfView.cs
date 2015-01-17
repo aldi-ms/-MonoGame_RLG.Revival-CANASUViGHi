@@ -148,12 +148,12 @@ namespace CanasUvighi
 
         public int Width()
         {
-            return this.grid.Height;
+            return this.grid.X;
         }
 
         public int Height()
         {
-            return this.grid.Width;
+            return this.grid.Y;
         }
 
         /// <summary>
@@ -187,9 +187,9 @@ namespace CanasUvighi
 
         void ClearFov()
         {
-            for (int y = 0; y < grid.Width; y++)
+            for (int y = 0; y < grid.Y; y++)
             {
-                for (int x = 0; x < grid.Height; x++)
+                for (int x = 0; x < grid.X; x++)
                 {
                     grid[x, y].IsVisible = false;
                 }

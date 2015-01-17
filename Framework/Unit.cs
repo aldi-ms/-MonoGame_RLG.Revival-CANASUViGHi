@@ -11,34 +11,35 @@ namespace CanasUvighi
             hasSpawned = false;
         private int
             id,
-            x,
-            y,
+            x = -1,
+            y = -1,
             speed,
             energy;
         private string
             name,
             visual;
         private Color color;
-        private Map map;
+        private Map unitMap;
 
         #region Constructors
         /// <summary>
         /// Create a new Unit with the specified variables.
         /// </summary>
-        /// <param name="id">The ID of the unit by DB.</param>
-        /// <param name="name">Name of the unit.</param>
-        /// <param name="visual">Visual string of the unit.</param>
-        /// <param name="color">Color of the unit.</param>
-        /// <param name="map">The Map on which the unit exists on.</param>
-        /// <param name="x">X axis of the unit in the specified map.</param>
-        /// <param name="y">Y axis of the unit in the specified map.</param>
-        public Unit(int id, string name, string visual, Color color, Map map, int speed, int x, int y)
+        /// <param name="id">The ID of the Unit by DB.</param>
+        /// <param name="name">Name of the Unit.</param>
+        /// <param name="visual">Visual string representation of the Unit.</param>
+        /// <param name="color">Color of the string visual of the Unit.</param>
+        /// <param name="unitMap">The Map on which the Unit exists on.</param>
+        /// <param name="x">X-axis of the unit in the specified map.</param>
+        /// <param name="y">Y-axis of the unit in the specified map.</param>
+        /// <param name="spawn">Spawn the Unit on the specified map and coordinates right away.</param>
+        public Unit(int id, string name, string visual, Color color, Map unitMap, int speed, int x, int y)
         {
             this.id = id;
             this.name = name;
             this.visual = visual;
             this.color = color;
-            this.map = map;
+            this.unitMap = unitMap;
             this.x = x;
             this.y = y;
             this.speed = speed;
@@ -57,12 +58,12 @@ namespace CanasUvighi
 
         public Map Map
         {
-            get { return this.map; }
+            get { return this.unitMap; }
 
             set 
             {
                 this.hasSpawned = false;
-                this.map = value;
+                this.unitMap = value;
             }
         }
 
@@ -91,6 +92,7 @@ namespace CanasUvighi
         public bool IsPlayerControl
         {
             get { return this.isPlayerControl; }
+            set { this.isPlayerControl = value; }
         }
         #endregion
 
@@ -144,48 +146,78 @@ namespace CanasUvighi
             }
             #endregion
 
-            // check if new coordinates are valid / is the move legal
-            if (ValidateMove(this.x + dX, this.y + dY))
+            // Check if new coordinates are valid / is the move legal
+            if (unitMap.CheckTile(this.x + dX, this.y + dY))
             {
-                // remove unit from old position
-                this.map.RemoveUnit(this.x, this.y);
+                // Remove unit from old position
+                unitMap.RemoveUnit(this.x, this.y);
 
-                // set new unit coordinates
+                // Set new unit coordinates
                 this.x += dX;
                 this.y += dY;
 
-                // set unit to the new position
-                this.map.SetUnit(this.x, this.y, this.id);
+                // Set unit to the new position
+                this.unitMap.SetUnit(this.x, this.y, this.id);
             }
-                // move was illegal, return false
+                // Move was illegal, return false
             else 
                 return false;
 
-            // subract energy cost for the move
+            // Subract energy cost for the move
             this.energy -= 100;
 
-            // move was made, return true
+            // Move was successful -> return true
             return true;
         }
 
         /// <summary>
-        /// Spawns the unit on its X and Y. Use once per map.
+        /// Spawns the unit on its map and coordinates.
         /// </summary>
-        public void Spawn()
+        public bool Spawn()
         {
-            if (!hasSpawned)
+            if (!this.hasSpawned)
             {
-                if (ValidateMove(this.x, this.y))
+                if (unitMap.CheckTile(this.x, this.y))
                 {
-                    map.SetUnit(this.x, this.y, this.ID);
-                    hasSpawned = true;
+                    unitMap.SetUnit(this.x, this.y, this.ID);
+                    this.hasSpawned = true;
+
+                    return true;
                 }
             }
+
+            return false;
         }
 
-        public void MakePlayerControl()
+        /// <summary>
+        /// Spawn the unit on specified coordinates, if valid.
+        /// </summary>
+        /// <param name="x">X-axis of the map tile.</param>
+        /// <param name="y">X-axis of the map tile.</param>
+        /// <returns>True if the Unit was spawned successfully. 
+        /// False otherwise (eg. when the unit has already been spawned).</returns>
+        public bool Spawn(int x, int y)
         {
-            this.isPlayerControl = true;
+            // Unit not-spawned - proceed.
+            if (!this.hasSpawned)
+            {
+                if (unitMap.CheckTile(x, y))
+                {
+                    // Set unit coordinates.
+                    this.x = x;
+                    this.y = y;
+
+                    unitMap.SetUnit(this.x, this.y, this.ID);
+                    this.hasSpawned = true;
+
+                    // We have spawned the unit successfully
+                    // -> return true
+                    return true;
+                }
+            }
+            // The unit has already been spawned
+            // -> return false
+            return false;
         }
         
         public JSONUnit ToJSONUnit()
@@ -201,31 +233,32 @@ namespace CanasUvighi
             jsonUnit.name = this.name;
             jsonUnit.visual = this.visual;
             jsonUnit.color = this.color;
-            jsonUnit.map = this.map;
+            jsonUnit.mapID = this.unitMap.ID;
 
             return jsonUnit;
         }
-
+        /*
         /// <summary>
         /// Check for situations that make the requested move invalid/illegal.
         /// </summary>
         /// <param name="x">X axis of the requested move.</param>
         /// <param name="y">Y axis of the requested move.</param>
         /// <returns>True for valid, False for invalid/illegal.</returns>
-        private bool ValidateMove(int x, int y)
+        private bool ValidateTile(int x, int y)
         {
-            if (x < 0 || x >= map.Height ||
-                y < 0 || y >= map.Width)
+            if (x < 0 || x >= currentZone.Height ||
+                y < 0 || y >= currentZone.Width)
             {
                 return false;
             }
 
-            if (this.map.GetTerrain(x, y).IsBlocked)
+            if (this.currentZone.GetTerrain(x, y).IsBlocked)
             {
                 return false;
             }
 
             return true;
         }
+         */
     }
 }

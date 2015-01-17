@@ -1,7 +1,7 @@
 ﻿namespace CanasUvighi
 {
     /// <summary>
-    /// Class keeping save the number/order of layers in a tile.
+    /// Class keeping save the number / order of layers in a tile.
     /// </summary>
     public class TileLayers
     {
@@ -14,7 +14,7 @@
 
         #region Constructor
         /// <summary>
-        /// Save objects contained in Tile, by id.
+        /// Create a Tile object with specified element IDs.
         /// </summary>
         /// <param name="terrain">Terrain object ID.</param>
         /// <param name="gameObj">GameObject ID.</param>
@@ -28,6 +28,9 @@
             this.unit = unit;
         }
 
+        /// <summary>
+        /// Create a default empty Tile object.
+        /// </summary>
         public TileLayers()
             : this(0, 0, 0, 0) { }
         #endregion

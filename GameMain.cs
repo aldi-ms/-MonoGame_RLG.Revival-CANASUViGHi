@@ -25,14 +25,15 @@ namespace CanasUvighi
             SCREEN_HEIGHT = 640,
 
             // minimum energy needed for taking a turn
-            TURN_COST = 100;
+            ACTION_COST = 100;
 
 
         private ulong turns;
 
         private bool
             inGame = false,
-            inMenu = false;
+            inMenu = false,
+            waitForAction = false;
 
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
@@ -55,8 +56,10 @@ namespace CanasUvighi
             gameBox;
         private List<Rectangle> windowBorders;
 
-        private Map map;
-        private GameData gameData;
+        private Map currentMap;
+
+        // Loaded text-file based predefined game objects
+        private GameData gameDataBase;
 
         // The previous (old) and the current (new)
         // keyboard states to check for key presses
@@ -114,7 +117,7 @@ namespace CanasUvighi
         protected override void LoadContent()
         {
             // Load game data first of all (DB).
-            gameData = new GameData();
+            gameDataBase = new GameData();
 
             // Create a new SpriteBatch, which can be used to draw textures
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -185,7 +188,7 @@ namespace CanasUvighi
         {
             // TODO: Add your update logic here
 
-            // Get the current KB state
+            // Get the current Keyboard state
             newKBState = Keyboard.GetState();
 
             if (CheckKeys(Keys.Escape))
@@ -220,16 +223,17 @@ namespace CanasUvighi
                 if (CheckKeys(Keys.Enter))
                 {
                     inMenu = false; 
-                    //int choice = this.mainMenu.Choose();
 
                     switch (this.mainMenu.Choose())
                     {
-                        case 0: 
+                        case 0:
                             NewGame(); 
                             break;
+
                         case 3:
                             Quit(); 
                             break;
+
                         default:
                             this.inMenu = true; 
                             break;
@@ -241,27 +245,27 @@ namespace CanasUvighi
             #region In Game
             if (inGame)
             {
-                // Spawn npc unit
+                // Spawn test NPC unit
                 if (CheckKeys(Keys.Q))
                 {
-                    Unit npc = new Unit(2, "npc_test", "q", Color.Blue, this.map, 15, 0, 0);
+                    Unit npc = new Unit(2, "npc_test", "q", Color.Blue, this.currentMap, 15, 0, 0);
                     this.unitActors.Add(npc);
                     npc.Spawn();
                 }
-
-                bool waitForAction = false;
-
+                
                 // first save number of units/actors that have energy >= TURN_COST
                 // and go to next turn after all of them have take action
                 foreach(Unit actor in unitActors)
                 {
-                    actor.Energy += actor.Speed;
+                    if (!waitForAction)
+                        actor.Energy += actor.Speed;
 
-                    if (actor.Energy >= TURN_COST)
+                    if (actor.Energy >= ACTION_COST)
                     {
                         if (actor.IsPlayerControl)
                         {
                             waitForAction = true;
+
                             // Actor / Unit is Player Controlled
                             #region Take action
                             // South
@@ -350,7 +354,7 @@ namespace CanasUvighi
                             if (!waitForAction)
                             {
                                 // Actor / Unit is Non-Player Controlled
-                                actor.Move((CardinalDirection)AI.DrunkardWalk());
+                                actor.Move(AI.DrunkardWalk());
                             }
                         }
                     }
@@ -377,7 +381,7 @@ namespace CanasUvighi
             if (inGame)
                 GraphicsDevice.Clear(Color.Black);
             else if (inMenu)
-                GraphicsDevice.Clear(new Color(3, 54, 73));
+                GraphicsDevice.Clear(this.borderColor);
 
             spriteBatch.Begin();
             
@@ -441,7 +445,7 @@ namespace CanasUvighi
 
                         spriteBatch.DrawString(
                             K8KurrierFixed20,
-                            map.GetTileVisual(x, y),
+                            currentMap.GetTileVisual(x, y),
                             vect,
                             fontColor);
                     }
@@ -458,7 +462,7 @@ namespace CanasUvighi
             {
                 debugInfo = //Newtonsoft.Json.JsonConvert.SerializeObject(this.map.GetTerrain(PC.X, PC.Y).ToJSONTerrain());
                     //string.Format("row:{0};col:{1};ttl_time:{2}", this.PC.X, this.PC.Y, gameTime.TotalGameTime);
-                string.Format("[{0};{1}]({2}turns)", PC.X, PC.Y, turns);
+                string.Format("[{0};{1}] energy:{2}; turns:{3}", PC.X, PC.Y, PC.Energy, turns);
                 //string.Format("x:{0},y:{1}", mouse.X, mouse.Y);
                 //string.Format("gameBox[x:{0};y:{1};width:{2};height{3};]", gameBox.X, gameBox.Y, gameBox.Width, gameBox.Height);
             }
@@ -488,25 +492,32 @@ namespace CanasUvighi
         /// </summary>
         private void NewGame()
         {
-            // map size
+            // reset previous settings/values
+            waitForAction = false;
+            unitActors.Clear();
+
+            #region Create Test Map
+            // Map size
             int x = GraphicsDevice.Viewport.Height / TILE_SIZE;
             int y = GraphicsDevice.Viewport.Width / TILE_SIZE;
 
-            map = new Map(
-                "TEST_MAP", 
-                new FlatArray<Tile>(x, y), 
+            currentMap = new Map(
+                "TEST_MAP",
+                new FlatArray<Tile>(x, y),
                 new GameData(),
-                true);
+                new int[] { 0, 1 }
+                );
+            #endregion
 
             // check for first free coordinates for PC
             int pcX = 0,
                 pcY = 0;
             bool outerBreak = false;
-            for (int i = 0; i < map.Height; i++)
+            for (int i = 0; i < currentMap.Height; i++)
             {
-                for (int j = 0; j < map.Width; j++)
+                for (int j = 0; j < currentMap.Width; j++)
                 {
-                    if (!map.GetTerrain(i, j).IsBlocked)
+                    if (!currentMap.GetTerrain(i, j).IsBlocked)
                     {
                         pcX = i;
                         pcY = j;
@@ -519,13 +530,13 @@ namespace CanasUvighi
                     break;
             }
 
-            // create a Player Character and spawn it on the map
-            PC = new Unit(1, "SCiENiDE", "@", Color.LightGreen, this.map, 10, pcX, pcY);
-            PC.MakePlayerControl();
+            // Create a Player Character and spawn it on the map
+            PC = new Unit(1, "SCiENiDE", "@", Color.LightGreen, this.currentMap, 10, pcX, pcY);
+            PC.IsPlayerControl = true;
             PC.Spawn();
-            // add PC to the unit list
+            // Add PC to the unit list
             unitActors.Add(PC);
-
+            
             // indicate we are currently playing (in game)
             inGame = true;
         }      
@@ -635,9 +646,9 @@ namespace CanasUvighi
         /// </summary>
         private void Quit()
         {
-            gameData.UnitDB = unitActors;
+            gameDataBase.UnitDB = unitActors;
 
-            gameData.Save();
+            gameDataBase.Save();
             Exit();
         }
     }

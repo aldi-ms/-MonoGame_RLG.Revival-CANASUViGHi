@@ -10,7 +10,7 @@ namespace CanasUvighi
     {
         private TileLayers layers;
 
-        #region Constructors
+        #region Constructor
         /// <summary>
         /// Create a Tile with the specifit objects contained.
         /// Objects are parsed through ID (int).
@@ -40,10 +40,10 @@ namespace CanasUvighi
             get { return true; }
         }
 
-        private TileLayers Layers
+        public TileLayers Layers
         {
             get { return this.layers; }
-            set { this.layers = value; }
+            private set { this.layers = value; }
         }
 
         // Create properties for each layer, returning int
@@ -72,8 +72,9 @@ namespace CanasUvighi
         }
         #endregion
 
+        /* *
         /// <summary>
-        /// Get the highest priority element contained in the tile.(Unit > Container > GameObj > Terrain)
+        /// Get the highest priority element contained in the tile. (Unit > Container > GameObj > Terrain)
         /// </summary>
         /// <param name="dbData"></param>
         /// <returns>A string of the highest priority element.</returns>
@@ -81,20 +82,20 @@ namespace CanasUvighi
         {
             if (this.layers.Unit != 0)
             {
-                /* logic to get the specified Unit 
-                 * visual str from the DB (by ID).*/
+                //logic to get the specified Unit 
+                //visual str from the DB (by ID).
                 return "@";
             }
             else if (this.layers.Container != 0)
             {
-                /* logic to get the specified Container 
-                 * visual str from the DB (by ID).*/
+                //logic to get the specified Container 
+                 //visual str from the DB (by ID).
                 return "o";
             }
             else if (this.layers.GameObj != 0)
             {
-                /* logic to get the specified GameObj 
-                 * visual str from the DB (by ID).*/
+                //logic to get the specified GameObj 
+                 //visual str from the DB (by ID).
                 return "$";
             }
 
@@ -103,7 +104,6 @@ namespace CanasUvighi
             int n = this.layers.Terrain;
 
             return dbData.TerrainDB[n].Visual;
-        }
-
+        }*/
     }
 }

@@ -10,7 +10,7 @@ namespace CanasUvighi
         private static Random RNG = new Random();
 
         /// <summary>
-        /// Test-move NPCs.
+        /// Test-move NPCs with random direction.
         /// </summary>
         /// <returns>Random CardinalDirection.</returns>
         public static CardinalDirection DrunkardWalk()

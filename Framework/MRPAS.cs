@@ -46,7 +46,7 @@ namespace CanasUvighi
             ViewPointX = 0;
             ViewPointY = 0;
             lightWalls = true;
-            maxRange = Math.Max(map.grid.Height, map.grid.Width);
+            maxRange = Math.Max(map.grid.X, map.grid.Y);
             shadowMap = new ShadowMap();
         }
 
@@ -105,7 +105,7 @@ namespace CanasUvighi
 
             y = ViewPointY + deltaY;
 
-            if (y >= 0 && y < Map.grid.Width)
+            if (y >= 0 && y < Map.grid.Y)
             {
                 bool keepScanning = false;
 
@@ -115,7 +115,7 @@ namespace CanasUvighi
                     double slopePerCell = 1.0 / (double)(currIteration + 1);
                     int currentCell = (int)(minimumScanSlope / slopePerCell);
                     int xMin = Math.Max(0, ViewPointX - currIteration);
-                    int xMax = Math.Min(Map.grid.Height - 1, ViewPointX + currIteration);
+                    int xMax = Math.Min(Map.grid.X - 1, ViewPointX + currIteration);
 
                     for (x = ViewPointX + (currentCell * deltaX); x >= xMin && x <= xMax; x += deltaX)
                     {
@@ -133,7 +133,7 @@ namespace CanasUvighi
 
                     y += deltaY;
 
-                    if (!keepScanning || y < 0 || y >= Map.grid.Width || minimumScanSlope == 1.0 || currIteration == maxRange)
+                    if (!keepScanning || y < 0 || y >= Map.grid.Y || minimumScanSlope == 1.0 || currIteration == maxRange)
                         break;
 
                     currIteration++;
@@ -149,7 +149,7 @@ namespace CanasUvighi
 
             x = ViewPointX + deltaX;
 
-            if (x >= 0 && x < Map.grid.Height)
+            if (x >= 0 && x < Map.grid.X)
             {
                 bool keepScanning = false;
 
@@ -159,7 +159,7 @@ namespace CanasUvighi
                     double slopePerCell = 1.0 / (double)(currIteration + 1);
                     int currentCell = (int)(minimumScanSlope / slopePerCell);
                     int yMin = Math.Max(0, ViewPointY - currIteration);
-                    int yMax = Math.Min(Map.grid.Width - 1, ViewPointY + currIteration);
+                    int yMax = Math.Min(Map.grid.Y - 1, ViewPointY + currIteration);
 
                     for (y = ViewPointY + (currentCell * deltaY); y >= yMin && y <= yMax; y += deltaY)
                     {
@@ -176,7 +176,7 @@ namespace CanasUvighi
                     }
 
                     x += deltaX;
-                    if (!keepScanning || x < 0 || x >= Map.grid.Height || minimumScanSlope == 1.0 || currIteration == maxRange)
+                    if (!keepScanning || x < 0 || x >= Map.grid.X || minimumScanSlope == 1.0 || currIteration == maxRange)
                         break;
 
                     currIteration++;
