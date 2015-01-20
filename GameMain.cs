@@ -108,9 +108,6 @@ namespace CanasUvighi
         /// </summary>
         protected override void LoadContent()
         {
-            // Load game data first of all (DB).
-            gameData = new GameData();
-
             // Create a new SpriteBatch, which can be used to draw textures
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
@@ -146,10 +143,7 @@ namespace CanasUvighi
 
             // Initialize visual borders.
             SetupWindowBorders();
-
-            // initialize a list for the units
-            unitActors = new List<Unit>();
-
+            
             // get a state for the oldState of keyboard
             oldKBState = Keyboard.GetState();
 
@@ -479,6 +473,11 @@ namespace CanasUvighi
         /// </summary>
         private void NewGame()
         {
+            // Load game data first of all (DB).
+            gameData = new GameData("SCiENiDE");
+            // initialize a list for the units
+            unitActors = new List<Unit>(gameData.NPCList);
+
             // Reset previous settings/values
             waitForAction = false;
             unitActors.Clear();
@@ -522,7 +521,7 @@ namespace CanasUvighi
             PC = new Unit(1, "SCiENiDE", "@", Color.LightGreen, this.currentMap, 10, pcX, pcY);
             PC.IsPlayerControl = true;
             PC.Spawn();
-            // Add PC to the unit list
+            // Add PC to the actor list
             unitActors.Add(PC);
             
             // Indicate we are currently playing (in game)
@@ -671,12 +670,6 @@ namespace CanasUvighi
         /// </summary>
         private void Quit()
         {
-            // Send GameData our Unit list to be saved
-            gameData.NPCList = unitActors;
-
-            // Save Map
-            gameDataBase.SaveMap(currentMap, GameData.MAP_PATH);
-
             gameData.SaveGameData();
 
             Exit();
