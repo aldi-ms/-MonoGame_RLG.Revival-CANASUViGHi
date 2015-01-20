@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using CanasUvighi.ObjectGenerator;
 using Newtonsoft.Json;
+using Microsoft.Xna.Framework;
 #endregion
 
 namespace CanasUvighi
@@ -23,16 +23,14 @@ namespace CanasUvighi
             using (var game = new GameMain())
                 game.Run();
 
-            /* JSON tests
-            Terrain testTerrain = new Terrain(1, "wall", "#", false);
-            JSONTerrain jsonTerrain = testTerrain.ToJSONTerrain();
+            /* *
+            // JSON Tests
+            Tile testTile = new Tile(1, 0, 24, 1);
 
-            string str = JsonConvert.SerializeObject(jsonTerrain);
-            Console.WriteLine(str);
+            string str = JsonConvert.SerializeObject(testTile);
 
-            JSONTerrain newTestTerrain = JsonConvert.DeserializeObject<JSONTerrain>(str);
-            Terrain final = newTestTerrain.ToTerrain();
-            */
+            Tile newColor = JsonConvert.DeserializeObject<Tile>(str);
+             * */
         }
     }
 #endif

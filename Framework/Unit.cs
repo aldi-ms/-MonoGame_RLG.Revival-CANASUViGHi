@@ -14,7 +14,8 @@ namespace CanasUvighi
             x = -1,
             y = -1,
             speed,
-            energy;
+            energy,
+            mapID;
         private string
             name,
             visual;
@@ -23,16 +24,15 @@ namespace CanasUvighi
 
         #region Constructors
         /// <summary>
-        /// Create a new Unit with the specified variables.
+        /// Create a new Unit with the specified variables. (Map)
         /// </summary>
         /// <param name="id">The ID of the Unit by DB.</param>
         /// <param name="name">Name of the Unit.</param>
         /// <param name="visual">Visual string representation of the Unit.</param>
-        /// <param name="color">Color of the string visual of the Unit.</param>
+        /// <param name="color">Color to use for Unit.</param>
         /// <param name="unitMap">The Map on which the Unit exists on.</param>
-        /// <param name="x">X-axis of the unit in the specified map.</param>
-        /// <param name="y">Y-axis of the unit in the specified map.</param>
-        /// <param name="spawn">Spawn the Unit on the specified map and coordinates right away.</param>
+        /// <param name="x">X-axis of the Unit in the specified map.</param>
+        /// <param name="y">Y-axis of the Unit in the specified map.</param>
         public Unit(int id, string name, string visual, Color color, Map unitMap, int speed, int x, int y)
         {
             this.id = id;
@@ -45,15 +45,39 @@ namespace CanasUvighi
             this.speed = speed;
             this.energy = 0;
         }
+        
+        /// <summary>
+        /// Create a new Unit with the specified variables. (MapID)
+        /// </summary>
+        /// <param name="id">The ID of the Unit by DB.</param>
+        /// <param name="name">Name of the Unit.</param>
+        /// <param name="visual">Visual string representation of the Unit.</param>
+        /// <param name="color">Color to use for Unit.</param>
+        /// <param name="mapID">ID of the Map on which the Unit exists.</param>
+        /// <param name="x">X-axis of the Unit in the specified map.</param>
+        /// <param name="y">Y-axis of the Unit in the specified map.</param>
+        public Unit(int id, string name, string visual, Color color, int mapID, int speed, int x, int y)
+            : this(id, name, visual, color, null, speed, x, y)
+        {
+            this.mapID = mapID;
+        }
         #endregion
 
         #region Properties
         /// <summary>
-        /// The unit ID by DB.
+        /// Unit ID by GameData.
         /// </summary>
         public int ID
         {
             get { return this.id; }
+        }
+
+        public string Name
+        {
+            get
+            {
+                return this.name;
+            }
         }
 
         public Map Map
@@ -166,7 +190,7 @@ namespace CanasUvighi
             // Subract energy cost for the move
             this.energy -= 100;
 
-            // Move was successful -> return true
+            // Move was successful, return true
             return true;
         }
 

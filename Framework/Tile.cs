@@ -10,21 +10,19 @@ namespace CanasUvighi
     {
         private TileLayers layers;
 
-        #region Constructor
         /// <summary>
         /// Create a Tile with the specifit objects contained.
-        /// Objects are parsed through ID (int).
+        /// Objects are parsed by ID.
         /// </summary>
         /// <param name="data">The Data element for all our loaded tables.</param>
-        /// <param name="terrain">Terrain ID. Here 0 value means grass.</param>
-        /// <param name="gameObj">GameObject ID. 0 value means no gameObj.</param>
-        /// <param name="container">Item Bag ID. 0 value means no gameObj.</param>
-        /// <param name="unit">Unit ID. 0 value means no gameObj.</param>
+        /// <param name="terrain">Terrain ID. Zero for open-grass Terrain.</param>
+        /// <param name="gameObj">GameObject ID. Zero for no gameObj.</param>
+        /// <param name="container">Item Bag ID. Zero for no gameObj.</param>
+        /// <param name="unit">Unit ID. Zero for no gameObj.</param>
         public Tile(int terrain, int gameObj, int container, int unit)
         {
             this.layers = new TileLayers(terrain, gameObj, container, unit);
         }
-        #endregion
 
         #region Properties
         /// <summary>
@@ -71,39 +69,5 @@ namespace CanasUvighi
             set { this.layers.Terrain = value; }
         }
         #endregion
-
-        /* *
-        /// <summary>
-        /// Get the highest priority element contained in the tile. (Unit > Container > GameObj > Terrain)
-        /// </summary>
-        /// <param name="dbData"></param>
-        /// <returns>A string of the highest priority element.</returns>
-        public string GetTileVisual(GameData dbData)
-        {
-            if (this.layers.Unit != 0)
-            {
-                //logic to get the specified Unit 
-                //visual str from the DB (by ID).
-                return "@";
-            }
-            else if (this.layers.Container != 0)
-            {
-                //logic to get the specified Container 
-                 //visual str from the DB (by ID).
-                return "o";
-            }
-            else if (this.layers.GameObj != 0)
-            {
-                //logic to get the specified GameObj 
-                 //visual str from the DB (by ID).
-                return "$";
-            }
-
-            // if there is nothing else in this Tile 
-            // just show the terrain
-            int n = this.layers.Terrain;
-
-            return dbData.TerrainDB[n].Visual;
-        }*/
     }
 }

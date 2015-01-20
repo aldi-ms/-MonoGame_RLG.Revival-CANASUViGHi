@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework.GamerServices;
 namespace CanasUvighi
 {
     /// <summary>
-    /// This is the main type for the game
+    /// This is the main type for the game.
     /// </summary>
     public class GameMain : Game
     {
@@ -26,7 +26,6 @@ namespace CanasUvighi
 
             // minimum energy needed for taking a turn
             ACTION_COST = 100;
-
 
         private ulong turns;
 
@@ -42,13 +41,6 @@ namespace CanasUvighi
             K8KurrierFixed20,
             specialElite22,
             consolas12;
-        /* *
-            GOSTTypeA30,
-            GOSTTypeA60,
-            consolas16,
-            square10,
-            square18,
-         * */
 
         // gameBox is the rectangle containing
         // the actual game field/board
@@ -59,7 +51,7 @@ namespace CanasUvighi
         private Map currentMap;
 
         // Loaded text-file based predefined game objects
-        private GameData gameDataBase;
+        private GameData gameData;
 
         // The previous (old) and the current (new)
         // keyboard states to check for key presses
@@ -117,42 +109,37 @@ namespace CanasUvighi
         protected override void LoadContent()
         {
             // Load game data first of all (DB).
-            gameDataBase = new GameData();
+            gameData = new GameData();
 
             // Create a new SpriteBatch, which can be used to draw textures
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             #region Font Load
             /* *
+             * Old Fonts (implement font loading
+             * & more fonts for UI extensibility/configurability)
             GOSTTypeA30 = Content.Load<SpriteFont>("GOST_type_A30");
             GOSTTypeA60 = Content.Load<SpriteFont>("GOST_type_A60");
             square10 = Content.Load<SpriteFont>("square10");
             GOSTTypeA30 = Content.Load<SpriteFont>("GOST_type_A30");
             consolas16 = Content.Load<SpriteFont>("Consolas16");
             square18 = Content.Load<SpriteFont>("Square18");
+            pericles18 = Content.Load<SpriteFont>("pericles18");
+            captureIt42 = Content.Load<SpriteFont>("capture_it42");
+            sketchFlow50 = Content.Load<SpriteFont>("SketchFlow_Print50");
+            GOSTTypeA50 = Content.Load<SpriteFont>("GOST_type_A50");
+            GtekNova60 = Content.Load<SpriteFont>("GtekNova60");
              * */
 
             consolas12 = Content.Load<SpriteFont>("Consolas12");                // For debug purposes.
             instruction22 = Content.Load<SpriteFont>("Instruction22");           // Headlines. No lowcap letters.
             K8KurrierFixed20 = Content.Load<SpriteFont>("K8KurierFixed20");    // Great Courier. Use for map/visual characters.
             specialElite22 = Content.Load<SpriteFont>("SpecialElite22");        // Objectives, text, explanations, etc.
-
-
-            /*
-             * Old Fonts (implement font loading
-             * & more fonts for UI extensibility/configurability)
-             * 
-            pericles18 = Content.Load<SpriteFont>("pericles18");
-            captureIt42 = Content.Load<SpriteFont>("capture_it42");
-            sketchFlow50 = Content.Load<SpriteFont>("SketchFlow_Print50");
-            GOSTTypeA50 = Content.Load<SpriteFont>("GOST_type_A50");
-            GtekNova60 = Content.Load<SpriteFont>("GtekNova60");
-             */
             #endregion
 
             // Create and configure a Menu, which will be used as the Game's Main Menu
             mainMenu = new Menu(this.spriteBatch, this.fontColor, new Color(232, 221, 203));
-            mainMenu.ConfigureMenu(this.MainMenuItems(this.instruction22, this.specialElite22));
+            mainMenu.ConfigureMenu(MainMenuItems(this.instruction22, this.specialElite22));
 
             // Indicates that we are in the game menu.
             inMenu = true;
@@ -165,7 +152,7 @@ namespace CanasUvighi
 
             // get a state for the oldState of keyboard
             oldKBState = Keyboard.GetState();
-                        
+
             // TODO: use this.Content to load your game content here
         }
 
@@ -207,20 +194,20 @@ namespace CanasUvighi
             #region In Menu
             if (inMenu)
             {
-                // Down
-                if (CheckKeys(Keys.Down))
+                // Down (arrows, numpad and vi-keys)
+                if (CheckKeys(Keys.Down, Keys.J, Keys.NumPad2))
                 {
                     mainMenu.Next();
                 }
 
-                // Up
-                if (CheckKeys(Keys.Up))
+                // Up (arrows, numpad and vi-keys)
+                if (CheckKeys(Keys.Up, Keys.K, Keys.NumPad8))
                 {
                     mainMenu.Previous();
                 }
 
-                // Enter
-                if (CheckKeys(Keys.Enter))
+                // Enter || Space
+                if (CheckKeys(Keys.Enter, Keys.Space))
                 {
                     inMenu = false; 
 
@@ -235,7 +222,7 @@ namespace CanasUvighi
                             break;
 
                         default:
-                            this.inMenu = true; 
+                            inMenu = true; 
                             break;
                     }
                 }
@@ -377,11 +364,11 @@ namespace CanasUvighi
         {
             // TODO: Add your drawing code here
 
-            // Set window color
+            // Clear window and set color
             if (inGame)
                 GraphicsDevice.Clear(Color.Black);
             else if (inMenu)
-                GraphicsDevice.Clear(this.borderColor);
+                GraphicsDevice.Clear(borderColor);
 
             spriteBatch.Begin();
             
@@ -492,7 +479,7 @@ namespace CanasUvighi
         /// </summary>
         private void NewGame()
         {
-            // reset previous settings/values
+            // Reset previous settings/values
             waitForAction = false;
             unitActors.Clear();
 
@@ -502,9 +489,10 @@ namespace CanasUvighi
             int y = GraphicsDevice.Viewport.Width / TILE_SIZE;
 
             currentMap = new Map(
-                "TEST_MAP",
+                0,  // ID
+                "TEST-MAP",
                 new FlatArray<Tile>(x, y),
-                new GameData(),
+                this.gameData,
                 new int[] { 0, 1 }
                 );
             #endregion
@@ -537,10 +525,33 @@ namespace CanasUvighi
             // Add PC to the unit list
             unitActors.Add(PC);
             
-            // indicate we are currently playing (in game)
+            // Indicate we are currently playing (in game)
             inGame = true;
         }      
         
+        private void LoadGame()
+        {
+            // Reset previous settings/values
+            waitForAction = false;
+            unitActors.Clear();
+
+            //currentMap = gameDataBase.LoadMap(@"../../../maps/0_TEST-MAP[22x36].cumap");
+
+            // . . .
+        }
+
+        private string AskForName()
+        {
+            spriteBatch.DrawString(
+                specialElite22,
+                "Character name:",
+                new Vector2(0f, 0f),
+                Color.Red   //debug color
+                );
+
+            return "";
+        }
+
         /// <summary>
         /// Check if any of the keys was pressed. Returns true once per key press.
         /// </summary>
@@ -558,6 +569,21 @@ namespace CanasUvighi
             }
             
             return result;
+        }
+
+        private char GetPressedKeyChar()
+        {
+            char ch = '\0';
+
+            foreach (Keys key in newKBState.GetPressedKeys())
+            {
+                if (CheckKeys(key))
+                {
+                    ch = key.ToString()[0];
+                }
+            }
+
+            return ch;
         }
 
         /// <summary>
@@ -589,7 +615,6 @@ namespace CanasUvighi
                 (GraphicsDevice.Viewport.Height / 4) * 3
                 );
         }
-
 
         // change menu items load from file (with JSON strings).
         /// <summary>
@@ -646,9 +671,14 @@ namespace CanasUvighi
         /// </summary>
         private void Quit()
         {
-            gameDataBase.UnitDB = unitActors;
+            // Send GameData our Unit list to be saved
+            gameData.NPCList = unitActors;
 
-            gameDataBase.Save();
+            // Save Map
+            gameDataBase.SaveMap(currentMap, GameData.MAP_PATH);
+
+            gameData.SaveGameData();
+
             Exit();
         }
     }

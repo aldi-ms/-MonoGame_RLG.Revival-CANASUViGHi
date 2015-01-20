@@ -10,35 +10,56 @@ namespace CanasUvighi
         private GameData gameData;
         private Random RNG;
 
+        #region Constructors
         /// <summary>
-        /// Create a new Map object.
+        /// Create a new empty Map and fill it with random Terrain/s. (GEN)
         /// </summary>
+        /// <param name="id">ID of the Map.</param>
         /// <param name="name">Name of the Map.</param>
         /// <param name="tiles">Flattened 2D array of Tiles, 
         /// containing the actual Map elements / layers.</param>
-        /// <param name="loadedData">The loaded game data.</param>
+        /// <param name="gameData">GameData to use.</param>
         /// <param name="terrainIDs">Randomly fill the Map with given 
         /// Terrain IDs.</param>
         public Map(
+            int id,
             string name,
             FlatArray<Tile> tiles,
-            GameData loadedData,
-            int[] terrainIDs = null)
+            GameData gameData,
+            int[] terrainIDs)
         {
-            this.id = 0; // TESTING!
-
+            this.id = id;
+            // should check name for invalid characters!
             this.name = name;
             this.mapTiles = tiles;
-            this.gameData = loadedData;
+            this.gameData = gameData;
+
             this.RNG = new Random();
 
             if (terrainIDs == null)
                 terrainIDs = new int[] { 0 };
 
             // Fill Map with random Terrain IDs
-            // until Map load is implemented
             FillMap(terrainIDs);
         }
+
+        /// <summary>
+        /// Create a Map with the specified Tiles. (LOAD)
+        /// </summary>
+        /// <param name="id">ID of the Map.</param>
+        /// <param name="tiles">Flattened 2D array of Tiles, 
+        /// containing the actual Map elements / layers.</param>
+        /// <param name="gameData">GameData to use.</param>
+        public Map(int id, string name, FlatArray<Tile> tiles, GameData gameData)
+        {
+            this.id = id;
+            this.name = name;
+            this.Tiles = tiles;
+            this.gameData = gameData;
+
+            this.RNG = new Random();
+        }
+        #endregion
 
         #region Properties
         public string Name
@@ -46,7 +67,7 @@ namespace CanasUvighi
             get { return this.name; }
         }
 
-        public FlatArray<Tile> MapTiles
+        public FlatArray<Tile> Tiles
         {
             get { return this.mapTiles; }
             set { this.mapTiles = value; }
@@ -125,7 +146,7 @@ namespace CanasUvighi
             return !GetTerrain(x, y).IsBlocked;
         }
 
-        #region Alternate Layer control
+        #region Layer Control
         /// <summary>
         /// Sets the Unit id of the specified tile.
         /// </summary>
