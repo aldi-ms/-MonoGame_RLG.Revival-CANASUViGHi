@@ -10,19 +10,12 @@ namespace CanasUvighi
 {
     public class GameData
     {
-        // Points to the default location of the save files.
-        public const string TERRAIN_FILE = @"../../../sav/terrain.cusav";
-        public const string UNIT_FILE = @"../../../sav/unit.cusav";
-        public const string MAPLIST_FILE = @"../../../maps/maplist.culist";
+        // Points to the location of the save files.
         private FileManager fm;
-
-        private string cipherKey;
 
         // Default encoding to use for files.
         private static readonly Encoding ENCODING = Encoding.UTF8;
-
-        private List<string> mapPaths;
-        
+                
         // Loaded data/object lists
         private List<Terrain> terrainList;
         private List<Unit> npcList;
@@ -384,7 +377,7 @@ namespace CanasUvighi
             foreach (string unitStr in unitStrings)
             {
                 tempUnit = JsonConvert.DeserializeObject<JSONUnit>(unitStr);
-                loadedUnits.Add(tempUnit.//ToUnit());
+                loadedUnits.Add(tempUnit.ToUnit(this));
             }
 
             return loadedUnits;
@@ -406,7 +399,7 @@ namespace CanasUvighi
         /// </summary>
         public void LoadTerrainList()
         {
-            this.terrainList.Clear();
+            this.terrainList = new List<Terrain>();
 
             using (var sReader = new StreamReader(FileManager.TerrainFile, ENCODING))
             {

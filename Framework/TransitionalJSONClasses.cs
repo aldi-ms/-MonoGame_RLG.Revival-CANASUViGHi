@@ -41,12 +41,10 @@ namespace CanasUvighi
             name,
             visual;
         public Color color;
-
-        /* *
-        public Unit ToUnit()
+        
+        public Unit ToUnit(GameData gameData)
         {
-            return new Unit(id, name, visual, color, map, speed, x, y);
+            return new Unit(gameData, id, name, visual, color, mapID, speed, x, y);
         }
-         * */
     }
 }

@@ -20,9 +20,10 @@ namespace CanasUvighi
             name,
             visual;
         private Color color;
-        private Map unitMap;
+        private GameData gameData;
 
         #region Constructors
+        /* *
         /// <summary>
         /// Create a new Unit with the specified variables. (Map)
         /// </summary>
@@ -45,7 +46,8 @@ namespace CanasUvighi
             this.speed = speed;
             this.energy = 0;
         }
-        
+        * */
+
         /// <summary>
         /// Create a new Unit with the specified variables. (MapID)
         /// </summary>
@@ -56,10 +58,20 @@ namespace CanasUvighi
         /// <param name="mapID">ID of the Map on which the Unit exists.</param>
         /// <param name="x">X-axis of the Unit in the specified map.</param>
         /// <param name="y">Y-axis of the Unit in the specified map.</param>
-        public Unit(int id, string name, string visual, Color color, int mapID, int speed, int x, int y)
-            : this(id, name, visual, color, null, speed, x, y)
+        public Unit(GameData gameData, int id, string name, string visual, Color color, int mapID, int speed, int x, int y)
         {
+            this.gameData = gameData;
+            this.id = id;
+            this.name = name;
+            this.visual = visual;
+            this.color = color;
             this.mapID = mapID;
+            this.speed = speed;
+
+            this.x = x;
+            this.y = y;
+
+            this.energy = 0;
         }
         #endregion
 
@@ -72,6 +84,12 @@ namespace CanasUvighi
             get { return this.id; }
         }
 
+        public int MapID
+        {
+            get { return this.mapID; }
+            set { this.mapID = value; }
+        }
+
         public string Name
         {
             get
@@ -80,15 +98,16 @@ namespace CanasUvighi
             }
         }
 
-        public Map Map
+        public Map UnitMap
         {
-            get { return this.unitMap; }
-
+            get { return gameData.MapList[mapID]; }
+            /* *
             set 
             {
                 this.hasSpawned = false;
                 this.unitMap = value;
             }
+            * */
         }
 
         public int X
@@ -171,17 +190,17 @@ namespace CanasUvighi
             #endregion
 
             // Check if new coordinates are valid / is the move legal
-            if (unitMap.CheckTile(this.x + dX, this.y + dY))
+            if (UnitMap.CheckTile(this.x + dX, this.y + dY))
             {
                 // Remove unit from old position
-                unitMap.RemoveUnit(this.x, this.y);
+                UnitMap.RemoveUnit(this.x, this.y);
 
                 // Set new unit coordinates
                 this.x += dX;
                 this.y += dY;
 
                 // Set unit to the new position
-                this.unitMap.SetUnit(this.x, this.y, this.id);
+                UnitMap.SetUnit(this.x, this.y, this.id);
             }
                 // Move was illegal, return false
             else 
@@ -201,9 +220,9 @@ namespace CanasUvighi
         {
             if (!this.hasSpawned)
             {
-                if (unitMap.CheckTile(this.x, this.y))
+                if (UnitMap.CheckTile(this.x, this.y))
                 {
-                    unitMap.SetUnit(this.x, this.y, this.ID);
+                    UnitMap.SetUnit(this.x, this.y, this.ID);
                     this.hasSpawned = true;
 
                     return true;
@@ -225,13 +244,13 @@ namespace CanasUvighi
             // Unit not-spawned - proceed.
             if (!this.hasSpawned)
             {
-                if (unitMap.CheckTile(x, y))
+                if (UnitMap.CheckTile(x, y))
                 {
                     // Set unit coordinates.
                     this.x = x;
                     this.y = y;
 
-                    unitMap.SetUnit(this.x, this.y, this.ID);
+                    UnitMap.SetUnit(this.x, this.y, this.ID);
                     this.hasSpawned = true;
 
                     // We have spawned the unit successfully
@@ -257,7 +276,7 @@ namespace CanasUvighi
             jsonUnit.name = this.name;
             jsonUnit.visual = this.visual;
             jsonUnit.color = this.color;
-            jsonUnit.mapID = this.unitMap.ID;
+            jsonUnit.mapID = this.mapID;
 
             return jsonUnit;
         }

@@ -229,7 +229,15 @@ namespace CanasUvighi
                 // Spawn test NPC unit
                 if (CheckKeys(Keys.Q))
                 {
-                    Unit npc = new Unit(2, "npc_test", "q", Color.Blue, this.currentMap, 15, 0, 0);
+                    Unit npc = new Unit(
+                        this.gameData,
+                        this.unitActors.Count + 1, 
+                        "npc_test",
+                        "q",
+                        Color.Blue,
+                        this.currentMap.ID,
+                        15, 0, 0);
+
                     this.unitActors.Add(npc);
                     npc.Spawn();
                 }
@@ -473,14 +481,14 @@ namespace CanasUvighi
         /// </summary>
         private void NewGame()
         {
+            // Reset previous settings/values
+            waitForAction = false;
+            unitActors.Clear();
+
             // Load game data first of all (DB).
             gameData = new GameData("SCiENiDE");
             // initialize a list for the units
             unitActors = new List<Unit>(gameData.NPCList);
-
-            // Reset previous settings/values
-            waitForAction = false;
-            unitActors.Clear();
 
             #region Create Test Map
             // Map size
@@ -518,7 +526,16 @@ namespace CanasUvighi
             }
 
             // Create a Player Character and spawn it on the map
-            PC = new Unit(1, "SCiENiDE", "@", Color.LightGreen, this.currentMap, 10, pcX, pcY);
+            PC = new Unit(
+                this.gameData, 
+                1, 
+                "SCiENiDE", 
+                "@",
+                Color.LightGreen,
+                this.currentMap.ID, 
+                10, 
+                pcX, pcY);
+
             PC.IsPlayerControl = true;
             PC.Spawn();
             // Add PC to the actor list
@@ -539,6 +556,7 @@ namespace CanasUvighi
             // . . .
         }
 
+        /* *
         private string AskForName()
         {
             spriteBatch.DrawString(
@@ -550,6 +568,7 @@ namespace CanasUvighi
 
             return "";
         }
+        * */
 
         /// <summary>
         /// Check if any of the keys was pressed. Returns true once per key press.
