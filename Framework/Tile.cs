@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace CanasUvighi
 {
     /// <summary>
     /// A tile is a basic game object keeping all we need to keep during a game for a single tile.
     /// The game world/map is composed of tiles.
-    /// </summary>
+    /// </summary> 
+    [DataContract]
     public class Tile : IFovCell
     {
         private TileLayers layers;
@@ -25,26 +28,27 @@ namespace CanasUvighi
         }
 
         #region Properties
+        [DataMember]
+        public TileLayers Layers
+        {
+            get { return this.layers; }
+            set { this.layers = value; }
+        }
+        
         /// <summary>
         /// Used by the FOV engine. Do not set manually.
         /// </summary>
         public bool IsVisible { get; set; }
 
         /// <summary>
-        /// Needed of the IFovCell interface, for the FOV engine.
+        /// For IFovCell interface. Is the tile transparent?
         /// </summary>
         public bool IsTransparent
         {
             get { return true; }
         }
 
-        public TileLayers Layers
-        {
-            get { return this.layers; }
-            private set { this.layers = value; }
-        }
-
-        // Create properties for each layer, returning int
+        // Properties for each layer, returning ID
         public int Unit
         {
             get { return this.layers.Unit; }

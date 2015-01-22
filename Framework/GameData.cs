@@ -18,54 +18,35 @@ namespace CanasUvighi
                 
         // Loaded data/object lists
         private List<Terrain> terrainList;
-        private List<Unit> npcList;
+        private List<Unit> unitList;
         private List<Map> mapList;
-        private Unit playerCharacter;
 
         #region Constructors
         /// <summary>
         /// Create a new Data object to load modified/saved data values
         /// for common game objects / elements.
         /// </summary>
-        public GameData(string pcName)
-        {
-            this.fm = new FileManager(pcName, false);
-
-            // loaded in this.terrainList
-            LoadTerrainList();
-
-            // if save is present load its values
-            // else throw ex
-            if (fm.SaveExists)
-            {
-                // to this.mapList
-                LoadMaps(SaveFolder.Modified);
-
-                // to this.npcList
-                LoadNPCList(SaveFolder.Modified);
-
-                // to this.playerCharacter
-                LoadPC();
-            }
-            else
-                throw new ArgumentException("Character folder doesn't exist!", pcName);
-        }
-
-        public GameData(Unit playerCharacter)
+        public GameData(string playerName)
         {
             // to this.terrainList
             LoadTerrainList();
+            
+            this.fm = new FileManager(playerName);
 
-            this.playerCharacter = playerCharacter;
+            SaveFolder sFolder = SaveFolder.Default;
 
-            this.fm = new FileManager(playerCharacter.Name, true);
+            // if the save is present load its values
+            // else load default
+            if (fm.SaveExists)
+            {
+                sFolder = SaveFolder.Modified;
+            }
 
             // to this.mapList
-            LoadMaps(SaveFolder.Default);
+            LoadMaps(sFolder);
 
             // to this.npcList
-            LoadNPCList(SaveFolder.Default);
-
+            LoadUnitList(sFolder);
         }
         #endregion
 
@@ -74,7 +55,7 @@ namespace CanasUvighi
         /// Return a list of all loaded Terrain objects.
         /// Position in list can be used as Terrain ID.
         /// </summary>
-        public List<Terrain> TerrainDB
+        public List<Terrain> TerrainList
         {
             get { return this.terrainList; }
         }
@@ -83,33 +64,12 @@ namespace CanasUvighi
         /// Return a list of all loaded Unit objects.
         /// Position in list can be used as Unit ID.
         /// </summary>
-        public List<Unit> NPCList
+        public List<Unit> UnitList
         {
-            get { return this.npcList; }
-
-            set 
-            {
-                foreach (Unit unit in value)
-                {
-                    if (unit.IsPlayerControl)
-                        throw new ArgumentException("No player control units in the NPC list!");
-                }
-
-                this.npcList = value;
-            }
-        }
-
-        public Unit PlayerCharacter
-        {
-            get { return this.playerCharacter; }
+            get { return this.unitList; }
 
             set
-            {
-                if (value.IsPlayerControl)
-                    this.playerCharacter = value;
-                else
-                    throw new ArgumentException("Unit set to PlayerCharacter should be in player control!");
-            }
+            { this.unitList = value; }
         }
 
         public List<Map> MapList
@@ -125,9 +85,8 @@ namespace CanasUvighi
         public void SaveGameData()
         {
             SaveTerrainList(FileManager.TerrainFile);
-            SaveNPCList(SaveFolder.Modified);
+            SaveUnitList(SaveFolder.Modified);
             SaveMapList(SaveFolder.Modified);
-            SavePC();
         }
 
         #region Map save/load
@@ -174,6 +133,8 @@ namespace CanasUvighi
                     mapsPathList = fm.ListOfModifiedMaps;
                     break;
             }
+
+            this.mapList = new List<Map>();
 
             foreach (string mapFile in mapsPathList)
             {
@@ -273,59 +234,49 @@ namespace CanasUvighi
 
         #region Unit save/load
         /// <summary>
-        /// Save the Player Character.
-        /// </summary>
-        public void SavePC()
-        {
-            SaveUnitList(
-                new List<Unit>() { this.playerCharacter },
-                fm.PCFile
-                );
-        }
-
-        /// <summary>
-        /// Load the Player Character Unit to this.playerCharacter.
-        /// </summary>
-        public void LoadPC()
-        {
-            LoadUnitList(fm.PCFile);
-        }
-
-        /// <summary>
-        /// Save the NPC List to the folder specified.
+        /// Save the Unit List to the folder specified.
         /// </summary>
         /// <param name="folder">Folder we want to save in.</param>
-        public void SaveNPCList(SaveFolder folder)
+        public void SaveUnitList(SaveFolder folder)
         {
             // check for PC ?
             switch (folder)
             {
                 case SaveFolder.Default:
-                    SaveUnitList(this.npcList, FileManager.DefaultNPCFile);
+                    SaveUnitList(this.unitList, FileManager.DefaultUnitFile);
                     break;
 
                 case SaveFolder.Modified:
-                    SaveUnitList(this.npcList, fm.ModifiedNPCFile);
+                    SaveUnitList(this.unitList, fm.ModifiedUnitFile);
                     break;
             }
         }
 
         /// <summary>
-        /// Load NPC List from the folder specified.
+        /// Load Unit List file from the folder specified.
         /// </summary>
         /// <param name="folder">Folder from which we want to load.</param>
-        public void LoadNPCList(SaveFolder folder) 
+        public void LoadUnitList(SaveFolder folder) 
         {            
             switch (folder)
             {
                 case SaveFolder.Default:
-                    this.npcList = LoadUnitList(FileManager.DefaultNPCFile);
+                    if (File.Exists(FileManager.DefaultUnitFile))
+                    {
+                        this.unitList = LoadUnitList(FileManager.DefaultUnitFile);
+                    }
                     break;
 
                 case SaveFolder.Modified:
-                    this.npcList = LoadUnitList(fm.ModifiedNPCFile);
+                    if (File.Exists(fm.ModifiedUnitFile))
+                    {
+                        this.unitList = LoadUnitList(fm.ModifiedUnitFile);
+                    }
                     break;
             }
+
+            if (this.unitList == null)
+                this.unitList = new List<Unit>();
         }
 
         /// <summary>
@@ -357,13 +308,13 @@ namespace CanasUvighi
         /// <summary>
         /// Load a Unit List from the specified file.
         /// </summary>
-        /// <param name="npcFile">Path + file to load.</param>
+        /// <param name="unitFile">Path + file to load.</param>
         /// <returns>List of Units.</returns>
-        private List<Unit> LoadUnitList(string npcFile)
+        private List<Unit> LoadUnitList(string unitFile)
         {
             string[] unitStrings;
 
-            using (var sReader = new StreamReader(npcFile, ENCODING))
+            using (var sReader = new StreamReader(unitFile, ENCODING))
             {
                 unitStrings = sReader.ReadToEnd().Split(
                     new char[] { '\n' },

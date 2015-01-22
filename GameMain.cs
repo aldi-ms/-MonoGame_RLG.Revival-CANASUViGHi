@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Storage;
-using Microsoft.Xna.Framework.GamerServices;
 #endregion
 
 namespace CanasUvighi
@@ -20,7 +19,7 @@ namespace CanasUvighi
         // Game window resolution
         // 1024 x 640 is 16:10 aspect ratio
         private const int
-            TILE_SIZE = 28,
+            TILE_SIZE = 32,
             SCREEN_WIDTH = 1024,
             SCREEN_HEIGHT = 640,
 
@@ -481,19 +480,13 @@ namespace CanasUvighi
         /// </summary>
         private void NewGame()
         {
-            // Reset previous settings/values
-            waitForAction = false;
-            unitActors.Clear();
-
-            // Load game data first of all (DB).
-            gameData = new GameData("SCiENiDE");
-            // initialize a list for the units
-            unitActors = new List<Unit>(gameData.NPCList);
-
             #region Create Test Map
             // Map size
             int x = GraphicsDevice.Viewport.Height / TILE_SIZE;
             int y = GraphicsDevice.Viewport.Width / TILE_SIZE;
+
+            // Create new GameData
+            this.gameData = new GameData("SCiENiDE");
 
             currentMap = new Map(
                 0,  // ID
@@ -538,11 +531,17 @@ namespace CanasUvighi
 
             PC.IsPlayerControl = true;
             PC.Spawn();
+
+            // Initialize a list for the Unit actors
+            unitActors = new List<Unit>();
             // Add PC to the actor list
             unitActors.Add(PC);
-            
+            // Add the player to the Unit List
+            this.gameData.UnitList.Add(PC);
             // Indicate we are currently playing (in game)
             inGame = true;
+            // Reset previous settings/values
+            waitForAction = false;
         }      
         
         private void LoadGame()
@@ -555,20 +554,6 @@ namespace CanasUvighi
 
             // . . .
         }
-
-        /* *
-        private string AskForName()
-        {
-            spriteBatch.DrawString(
-                specialElite22,
-                "Character name:",
-                new Vector2(0f, 0f),
-                Color.Red   //debug color
-                );
-
-            return "";
-        }
-        * */
 
         /// <summary>
         /// Check if any of the keys was pressed. Returns true once per key press.
@@ -587,21 +572,6 @@ namespace CanasUvighi
             }
             
             return result;
-        }
-
-        private char GetPressedKeyChar()
-        {
-            char ch = '\0';
-
-            foreach (Keys key in newKBState.GetPressedKeys())
-            {
-                if (CheckKeys(key))
-                {
-                    ch = key.ToString()[0];
-                }
-            }
-
-            return ch;
         }
 
         /// <summary>
@@ -689,9 +659,44 @@ namespace CanasUvighi
         /// </summary>
         private void Quit()
         {
+            //if (this.unitActors.Contains(this.PC))
+            //    this.unitActors.Remove(this.PC);
+
+            gameData.UnitList = this.unitActors;
+            //gameData.PlayerCharacter = this.PC;
+
             gameData.SaveGameData();
 
             Exit();
         }
+
+        /* *
+        private string AskForName()
+        {
+            spriteBatch.DrawString(
+                specialElite22,
+                "Character name:",
+                new Vector2(0f, 0f),
+                Color.Red   //debug color
+                );
+
+            return "";
+        }
+
+        private char GetPressedKeyChar()
+        {
+            char ch = '\0';
+
+            foreach (Keys key in newKBState.GetPressedKeys())
+            {
+                if (CheckKeys(key))
+                {
+                    ch = key.ToString()[0];
+                }
+            }
+
+            return ch;
+        }
+        * */
     }
 }

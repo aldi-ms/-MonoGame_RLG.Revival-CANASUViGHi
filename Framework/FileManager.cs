@@ -3,6 +3,9 @@ using System.IO;
 
 namespace CanasUvighi
 {
+    /// <summary>
+    /// Keeps paths and filename of all game save files.
+    /// </summary>
     public class FileManager
     {
         private const string
@@ -10,7 +13,7 @@ namespace CanasUvighi
             dataDefault = "default/",
             mapsFolder = "maps/",
             terrainFile = "terrain.cu",
-            npcUnitFile = "npc_unit.cu";
+            npcUnitFile = "unit.cu";
 
         private string
             charName,
@@ -22,12 +25,12 @@ namespace CanasUvighi
         /// <param name="pcName">Player Character name is used as save folder name.</param>
         /// <param name="createFolders">False if we are loading a previously saved game.
         /// True for new game to create folder structure.</param>
-        public FileManager(string pcName, bool createFolders)
+        public FileManager(string pcName)
         {
             this.charName = pcName;
             this.pcFile = pcName + ".cu";
 
-            if (createFolders)
+            if (!Directory.Exists(PlayerCharacterFolder))
                 CreateFolderStructure();
         }
         
@@ -59,7 +62,7 @@ namespace CanasUvighi
         /// <summary>
         /// Path + file containing the default Non-Player Characters.
         /// </summary>
-        public static string DefaultNPCFile
+        public static string DefaultUnitFile
         {
             get { return DefaultDataFolder + npcUnitFile; }
         }
@@ -109,7 +112,7 @@ namespace CanasUvighi
         /// <summary>
         /// Path + file containing the modified Non-Player Characters.
         /// </summary>
-        public string ModifiedNPCFile
+        public string ModifiedUnitFile
         {
             get { return PlayerCharacterFolder + npcUnitFile; }
         }
@@ -134,7 +137,7 @@ namespace CanasUvighi
         {
             get
             {
-                return Directory.Exists(PlayerCharacterFolder);
+                return File.Exists(PCFile);
             }
         }
         #endregion
@@ -150,11 +153,13 @@ namespace CanasUvighi
         private void CreateFolderStructure()
         {
             // Default dir should exist.
+            /* *
             if (!Directory.Exists(DefaultDataFolder))
             {
                 Directory.CreateDirectory(DefaultDataFolder);
                 Directory.CreateDirectory(DefaultMapsFolder);
             }
+            * */
 
             // Create character directories
             Directory.CreateDirectory(PlayerCharacterFolder);

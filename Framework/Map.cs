@@ -112,7 +112,7 @@ namespace CanasUvighi
                 return "*";
             }
             else
-                return gameData.TerrainDB[tl.Terrain].Visual;
+                return gameData.TerrainList[tl.Terrain].Visual;
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace CanasUvighi
         /// <returns>Terrain object.</returns>
         public Terrain GetTerrain(int x, int y)
         {
-            return gameData.TerrainDB[mapTiles[x, y].Terrain];
+            return gameData.TerrainList[mapTiles[x, y].Terrain];
         }
 
         /// <summary>
@@ -189,7 +189,7 @@ namespace CanasUvighi
 
                         // If the tile is blocked 30% (from 7 to 9, inclusive)
                         // chance to get a new random ID.
-                        if (gameData.TerrainDB[id].IsBlocked)
+                        if (gameData.TerrainList[id].IsBlocked)
                         {
                             if (RNG.Next(0, 10) > 6)
                                 id = RNG.Next(0, terrainIDs.Length);

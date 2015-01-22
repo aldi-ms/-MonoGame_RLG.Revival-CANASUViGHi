@@ -224,7 +224,7 @@ namespace CanasUvighi
                 {
                     UnitMap.SetUnit(this.x, this.y, this.ID);
                     this.hasSpawned = true;
-
+                    
                     return true;
                 }
             }
@@ -280,28 +280,5 @@ namespace CanasUvighi
 
             return jsonUnit;
         }
-        /*
-        /// <summary>
-        /// Check for situations that make the requested move invalid/illegal.
-        /// </summary>
-        /// <param name="x">X axis of the requested move.</param>
-        /// <param name="y">Y axis of the requested move.</param>
-        /// <returns>True for valid, False for invalid/illegal.</returns>
-        private bool ValidateTile(int x, int y)
-        {
-            if (x < 0 || x >= currentZone.Height ||
-                y < 0 || y >= currentZone.Width)
-            {
-                return false;
-            }
-
-            if (this.currentZone.GetTerrain(x, y).IsBlocked)
-            {
-                return false;
-            }
-
-            return true;
-        }
-         */
     }
 }
