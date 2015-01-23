@@ -236,8 +236,8 @@ namespace CanasUvighi
                         "q",
                         Color.Blue,
                         PC.MapID,
-                        15, 0, 0);
-
+                        10, 0, 0);
+                    gameData.UnitList.Add(npc);
                     this.unitActors.Add(npc);
                     npc.Spawn();
                 }
@@ -348,7 +348,6 @@ namespace CanasUvighi
                         }
                     }
                 }
-
             #endregion
             }
 
@@ -389,8 +388,7 @@ namespace CanasUvighi
                 spriteBatch.Draw(simpleTexture, gameBox, backgroundColor);
 
                 #region Draw grid
-                /* *
-                bool drawGrid = true;
+                bool drawGrid = false;
                 if (drawGrid)
                 {
                     for (int rows = gameBox.Y; rows < gameBox.Y + gameBox.Height; rows += TILE_SIZE)
@@ -404,7 +402,6 @@ namespace CanasUvighi
                         spriteBatch.Draw(simpleTexture, tempRect, Color.DarkSlateGray);
                     }
                 }
-                * */
                 #endregion
 
                 #region Draw window & gameBox borders
@@ -426,20 +423,28 @@ namespace CanasUvighi
                 int viewBoxTilesHeight = gameBox.Height / TILE_SIZE,
                     viewBoxTilesWidth = gameBox.Width / TILE_SIZE;
 
+                int mapX = PC.X - (viewBoxTilesHeight / 2);
+                int mapY = PC.Y - (viewBoxTilesWidth / 2);
+                if (mapX < 0) mapX = 0;
+                if (mapY < 0) mapY = 0;
+                if (mapX + viewBoxTilesHeight >= gameData.MapList[PC.MapID].Height)
+                    mapX = gameData.MapList[PC.MapID].Height - viewBoxTilesHeight;
+                if (mapY + viewBoxTilesWidth >= gameData.MapList[PC.MapID].Width)
+                    mapY = gameData.MapList[PC.MapID].Width - viewBoxTilesWidth;
+
                 for (int x = 0; x < viewBoxTilesHeight; x++)
                 {
                     for (int y = 0; y < viewBoxTilesWidth; y++)
                     {
                         Vector2 vect = new Vector2(14 + y * TILE_SIZE, 10 + x * TILE_SIZE);
-
+                        
                         spriteBatch.DrawString(
                             K8KurrierFixed20,
-                            gameData.MapList[PC.MapID].GetTileVisual(x, y),
+                            gameData.MapList[PC.MapID].GetTileVisual(mapX + x, mapY + y),
                             vect,
                             fontColor);
                     }
                 }
-
                 #endregion
             }
             

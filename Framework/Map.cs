@@ -140,6 +140,9 @@ namespace CanasUvighi
                 return false;
             }
 
+            if (this.Tiles[x, y].Unit != 0)
+                return false;
+
             // If the Terrain is blocking the given Tile return false,
             // else return true.
             return !GetTerrain(x, y).IsBlocked;
