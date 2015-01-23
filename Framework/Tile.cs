@@ -44,7 +44,7 @@ namespace CanasUvighi
         /// </summary>
         public bool IsTransparent
         {
-            get { return true; }
+            get { return this.layers.Terrain != 1; }
         }
 
         // Properties for each layer, returning ID

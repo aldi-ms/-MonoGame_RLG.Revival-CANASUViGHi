@@ -48,8 +48,6 @@ namespace CanasUvighi
             gameBox;
         private List<Rectangle> windowBorders;
 
-        //private Map currentMap;
-
         // Loaded text-file based predefined game objects
         private GameData gameData;
 
@@ -73,6 +71,9 @@ namespace CanasUvighi
             borderColor = new Color(3, 54, 73),
             fontColor = new Color(205, 179, 128),
             backgroundColor = new Color(3, 101, 100);
+
+        private FieldOfView<Tile> fieldOfView;
+        private Point fovSource;
         #endregion
 
         #region Constructor, Init, (Un)LoadContent
@@ -98,6 +99,7 @@ namespace CanasUvighi
             graphics.ApplyChanges();
             
             this.IsMouseVisible = true;
+            this.fovSource = new Point();
 
             base.Initialize();
         }
@@ -376,7 +378,7 @@ namespace CanasUvighi
             // Define basic Texture2D element for drawing
             Texture2D simpleTexture = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
             simpleTexture.SetData<Color>( new[] { Color.White } );
-
+            
             if (inMenu)
             {
                 // Begin with main menu
@@ -419,7 +421,14 @@ namespace CanasUvighi
                 #endregion
 
                 #region Draw Map
-
+                // if other units/moveable objects that are not transparent
+                // move in player's fov, check becomes wrong
+                if (PC.X != fovSource.X || PC.Y != fovSource.Y)
+                {
+                    fovSource.X = PC.X;
+                    fovSource.Y = PC.Y;
+                    this.fieldOfView.ComputeFov(PC.X, PC.Y, 5, true, FOVMethod.MRPAS, RangeLimitShape.Octagon);
+                }
                 int viewBoxTilesHeight = gameBox.Height / TILE_SIZE,
                     viewBoxTilesWidth = gameBox.Width / TILE_SIZE;
 
@@ -495,7 +504,7 @@ namespace CanasUvighi
             this.gameData = new GameData("SCiENiDE");
 
             Map testMap = new Map(
-                0,  // ID
+                1,  // ID
                 "TEST-MAP",
                 new FlatArray<Tile>(x, y),
                 this.gameData,
@@ -505,17 +514,16 @@ namespace CanasUvighi
             #endregion
 
             // check for first free coordinates for PC
-            int pcX = 0,
-                pcY = 0;
+            Point freePos = new Point(0, 0);
             bool outerBreak = false;
+
             for (int i = 0; i < testMap.Height; i++)
             {
                 for (int j = 0; j < testMap.Width; j++)
                 {
                     if (!testMap.GetTerrain(i, j).IsBlocked)
                     {
-                        pcX = i;
-                        pcY = j;
+                        freePos = new Point(i, j);
                         outerBreak = true;
                         break;
                     }
@@ -534,10 +542,15 @@ namespace CanasUvighi
                 Color.LightGreen,
                 testMap.ID, 
                 10, 
-                pcX, pcY);
+                freePos.X,
+                freePos.Y);
 
             PC.IsPlayerControl = true;
             PC.Spawn();
+
+            // Create Field of View (shadows)
+            this.fieldOfView = new FieldOfView<Tile>(gameData.MapList[PC.MapID].Tiles);
+            this.fovSource = new Point(PC.X + 1, PC.Y);
 
             // Initialize a list for the Unit actors
             unitActors = new List<Unit>();

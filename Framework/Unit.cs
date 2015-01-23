@@ -11,14 +11,13 @@ namespace CanasUvighi
             hasSpawned = false;
         private int
             id,
-            x = -1,
-            y = -1,
             speed,
             energy,
             mapID;
         private string
             name,
             visual;
+        private Point position;
         private Color color;
         private GameData gameData;
 
@@ -43,9 +42,7 @@ namespace CanasUvighi
             this.color = color;
             this.mapID = mapID;
             this.speed = speed;
-
-            this.x = x;
-            this.y = y;
+            this.position = new Point(x, y);
 
             this.energy = 0;
         }
@@ -59,8 +56,8 @@ namespace CanasUvighi
             unit.color,
             unit.mapID,
             unit.speed,
-            unit.x,
-            unit.y)
+            unit.position.X,
+            unit.position.Y)
         { }
         #endregion
 
@@ -94,12 +91,14 @@ namespace CanasUvighi
         
         public int X
         {
-            get { return this.x; }
+            get { return this.position.X; }
+            set { this.position.X = value; }
         }
 
         public int Y
         {
-            get { return this.y; }
+            get { return this.position.Y; }
+            set { this.position.Y = value; }
         }
 
         public int Speed
@@ -185,17 +184,17 @@ namespace CanasUvighi
             #endregion
 
             // Check if new coordinates are valid / is the move legal
-            if (UnitMap.CheckTile(this.x + dX, this.y + dY))
+            if (UnitMap.CheckTile(this.X + dX, this.Y + dY))
             {
                 // Remove unit from old position
-                UnitMap.RemoveUnit(this.x, this.y);
+                UnitMap.RemoveUnit(this.X, this.Y);
 
                 // Set new unit coordinates
-                this.x += dX;
-                this.y += dY;
+                this.X += dX;
+                this.Y += dY;
 
                 // Set unit to the new position
-                UnitMap.SetUnit(this.x, this.y, this.id);
+                UnitMap.SetUnit(this.X, this.Y, this.id);
             }
                 // Move was illegal, return false
             else 
@@ -215,9 +214,9 @@ namespace CanasUvighi
         {
             if (!this.hasSpawned)
             {
-                if (UnitMap.CheckTile(this.x, this.y))
+                if (UnitMap.CheckTile(this.X, this.Y))
                 {
-                    UnitMap.SetUnit(this.x, this.y, this.ID);
+                    UnitMap.SetUnit(this.X, this.Y, this.ID);
                     this.hasSpawned = true;
                     
                     return true;
@@ -242,10 +241,10 @@ namespace CanasUvighi
                 if (UnitMap.CheckTile(x, y))
                 {
                     // Set unit coordinates.
-                    this.x = x;
-                    this.y = y;
+                    this.X = x;
+                    this.Y = y;
 
-                    UnitMap.SetUnit(this.x, this.y, this.ID);
+                    UnitMap.SetUnit(this.X, this.Y, this.ID);
                     this.hasSpawned = true;
 
                     // We have spawned the unit successfully

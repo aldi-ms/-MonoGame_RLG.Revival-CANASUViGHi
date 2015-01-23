@@ -44,7 +44,7 @@ namespace CanasUvighi
 
             mapList = new List<Map>();
             // to this.mapList
-            //LoadMaps(sFolder);
+            LoadMaps(sFolder);
 
             // to this.npcList
             LoadUnitList(sFolder);

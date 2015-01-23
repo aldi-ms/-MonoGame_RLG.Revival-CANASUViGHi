@@ -19,8 +19,7 @@ namespace CanasUvighi
         /// </summary>
         static void Main()
         {
-            bool testing = false;
-            if (testing)
+            if (false)
             {
                 // JSON Tests
                 GameData gData = new GameData("koz");

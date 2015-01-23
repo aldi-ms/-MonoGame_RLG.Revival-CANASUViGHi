@@ -8,7 +8,6 @@ namespace CanasUvighi
         private string name;
         private FlatArray<Tile> mapTiles;
         private GameData gameData;
-        private Random RNG;
 
         #region Constructors
         /// <summary>
@@ -34,13 +33,11 @@ namespace CanasUvighi
             this.mapTiles = tiles;
             this.gameData = gameData;
 
-            this.RNG = new Random();
-
-            if (terrainIDs == null)
-                terrainIDs = new int[] { 0 };
-
-            // Fill Map with random Terrain IDs
-            FillMap(terrainIDs);
+            if (terrainIDs != null)
+            {
+                // Fill Map with random Terrain IDs
+                FillMap(terrainIDs);
+            }
         }
 
         /// <summary>
@@ -109,8 +106,11 @@ namespace CanasUvighi
             }
             else
             {
-                // if none of the above exist in the Tile, show Terrain
-                return gameData.TerrainList[layer.Terrain].Visual;
+                if (this.Tiles[x, y].IsVisible)
+                    // if none of the above exist in the Tile, show Terrain
+                    return gameData.TerrainList[layer.Terrain].Visual;
+                else
+                    return " ";
             }
         }
 
@@ -176,6 +176,8 @@ namespace CanasUvighi
         /// <param name="terrainIDs">An array of Terrain IDs to randomly fill the Map with.</param>
         private void FillMap(int[] terrainIDs)
         {
+            Random RNG = new Random();
+
             for (int row = 0; row < this.mapTiles.X; row++)
             {
                 for (int col = 0; col < this.mapTiles.Y; col++)
@@ -189,11 +191,11 @@ namespace CanasUvighi
                     {
                         id = RNG.Next(0, terrainIDs.Length);
 
-                        // If the tile is blocked 30% (from 7 to 9, inclusive)
+                        // If the tile is blocked 40% (from 6 to 9, inclusive)
                         // chance to get a new random ID.
                         if (gameData.TerrainList[id].IsBlocked)
                         {
-                            if (RNG.Next(0, 10) > 6)
+                            if (RNG.Next(0, 10) > 5)
                                 id = RNG.Next(0, terrainIDs.Length);
                         }
                     }

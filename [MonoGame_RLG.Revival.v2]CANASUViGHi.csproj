@@ -75,7 +75,6 @@
     <Compile Include="Framework\DrawString.cs" />
     <Compile Include="Framework\SaveFolder.cs" />
     <Compile Include="Framework\StringCipher.cs" />
-    <Compile Include="Framework\TransitionalJSONClasses.cs" />
     <Compile Include="GameMain.cs" />
     <Compile Include="Framework\GameData.cs" />
     <Compile Include="Framework\FieldOfView.cs" />
@@ -107,6 +106,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="!todo.txt" />
+    <Content Include="changelog.txt" />
     <Content Include="Icon.ico" />
   </ItemGroup>
   <ItemGroup>

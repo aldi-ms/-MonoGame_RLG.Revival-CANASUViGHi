@@ -13,7 +13,7 @@ namespace CanasUvighi
             dataDefault = "default/",
             mapsFolder = "maps/",
             terrainFile = "terrain.cu",
-            npcUnitFile = "unit.cu";
+            unitFile = "unit.cu";
 
         private string
             charName,
@@ -64,7 +64,7 @@ namespace CanasUvighi
         /// </summary>
         public static string DefaultUnitFile
         {
-            get { return DefaultDataFolder + npcUnitFile; }
+            get { return DefaultDataFolder + unitFile; }
         }
 
         /// <summary>
@@ -102,19 +102,11 @@ namespace CanasUvighi
         }
 
         /// <summary>
-        /// Path + file containing this Player Character.
-        /// </summary>
-        public string PCFile
-        {
-            get { return PlayerCharacterFolder + this.pcFile; }
-        }
-
-        /// <summary>
         /// Path + file containing the modified Non-Player Characters.
         /// </summary>
         public string ModifiedUnitFile
         {
-            get { return PlayerCharacterFolder + npcUnitFile; }
+            get { return PlayerCharacterFolder + unitFile; }
         }
         
         /// <summary>
@@ -137,7 +129,7 @@ namespace CanasUvighi
         {
             get
             {
-                return File.Exists(PCFile);
+                return File.Exists(ModifiedUnitFile);
             }
         }
         #endregion

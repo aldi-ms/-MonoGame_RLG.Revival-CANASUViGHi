@@ -1,0 +1,16 @@
+﻿Change Log
+
+->23.01.2015
+*Reworked the draw map code,  we finally have a basic scrollable map, which
+won't go overbound. 
+*Quick and dirty implement of field of view using FOVAlgorithm.
+*Created a To do list to keep track of all work that needs to be done in the
+future. Check !todo.txt for reference.
+
+-> 23.01.2015
+After several fixes (mainly map scroll and field of view) I am starting a 
+change log to keep track of updates / changes on the code under this project.
+To denote a new update or change the line will start with *. All posts will
+be separated with an empty line, as well as start with line in format:
+"-> dd.mm.yyy"
+ 
