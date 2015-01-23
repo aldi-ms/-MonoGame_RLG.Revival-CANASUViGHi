@@ -51,14 +51,8 @@ namespace CanasUvighi
         /// containing the actual Map elements / layers.</param>
         /// <param name="gameData">GameData to use.</param>
         public Map(int id, string name, FlatArray<Tile> tiles, GameData gameData)
-        {
-            this.id = id;
-            this.name = name;
-            this.Tiles = tiles;
-            this.gameData = gameData;
-
-            this.RNG = new Random();
-        }
+            :this(id, name, tiles, gameData, null)
+        { }
         #endregion
 
         #region Properties
@@ -97,22 +91,27 @@ namespace CanasUvighi
         /// <returns>The visual string of the highest priority element.</returns>
         public string GetTileVisual(int x, int y)
         {
-            TileLayers tl = mapTiles[x, y].Layers;
+            TileLayers layer = mapTiles[x, y].Layers;
 
-            if (tl.Unit != 0)
+            if (layer.Unit != 0)
             {
-                return "@";
+                return gameData.UnitList[layer.Unit - 1].Visual;
             }
-            if (tl.Container != 0)
+            if (layer.Container != 0)
             {
+                // todo:implement!
                 return "o";
             }
-            if (tl.GameObj != 0)
+            if (layer.GameObj != 0)
             {
+                // todo:implement!
                 return "*";
             }
             else
-                return gameData.TerrainList[tl.Terrain].Visual;
+            {
+                // if none of the above exist in the Tile, show Terrain
+                return gameData.TerrainList[layer.Terrain].Visual;
+            }
         }
 
         /// <summary>

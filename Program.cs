@@ -17,20 +17,26 @@ namespace CanasUvighi
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        //[STAThread]
         static void Main()
         {
-            using (var game = new GameMain())
-                game.Run();
+            bool testing = false;
+            if (testing)
+            {
+                // JSON Tests
+                GameData gData = new GameData("koz");
+                Unit test = new Unit(gData, 3, "test", "#", Color.Aqua, 0, 12, 3, 4);
 
-            /* *
-            // JSON Tests
-            Tile testTile = new Tile(1, 0, 24, 1);
+                string str = JsonConvert.SerializeObject(test);
 
-            string str = JsonConvert.SerializeObject(testTile);
+                Unit deserialized = new Unit(gData, JsonConvert.DeserializeObject<Unit>(str));
 
-            Tile newColor = JsonConvert.DeserializeObject<Tile>(str);
-             * */
+                str = null;
+            }
+            else
+            {
+                using (var game = new GameMain())
+                    game.Run();
+            }
         }
     }
 #endif

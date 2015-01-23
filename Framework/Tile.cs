@@ -17,7 +17,6 @@ namespace CanasUvighi
         /// Create a Tile with the specifit objects contained.
         /// Objects are parsed by ID.
         /// </summary>
-        /// <param name="data">The Data element for all our loaded tables.</param>
         /// <param name="terrain">Terrain ID. Zero for open-grass Terrain.</param>
         /// <param name="gameObj">GameObject ID. Zero for no gameObj.</param>
         /// <param name="container">Item Bag ID. Zero for no gameObj.</param>

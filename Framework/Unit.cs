@@ -23,31 +23,6 @@ namespace CanasUvighi
         private GameData gameData;
 
         #region Constructors
-        /* *
-        /// <summary>
-        /// Create a new Unit with the specified variables. (Map)
-        /// </summary>
-        /// <param name="id">The ID of the Unit by DB.</param>
-        /// <param name="name">Name of the Unit.</param>
-        /// <param name="visual">Visual string representation of the Unit.</param>
-        /// <param name="color">Color to use for Unit.</param>
-        /// <param name="unitMap">The Map on which the Unit exists on.</param>
-        /// <param name="x">X-axis of the Unit in the specified map.</param>
-        /// <param name="y">Y-axis of the Unit in the specified map.</param>
-        public Unit(int id, string name, string visual, Color color, Map unitMap, int speed, int x, int y)
-        {
-            this.id = id;
-            this.name = name;
-            this.visual = visual;
-            this.color = color;
-            this.unitMap = unitMap;
-            this.x = x;
-            this.y = y;
-            this.speed = speed;
-            this.energy = 0;
-        }
-        * */
-
         /// <summary>
         /// Create a new Unit with the specified variables. (MapID)
         /// </summary>
@@ -58,6 +33,7 @@ namespace CanasUvighi
         /// <param name="mapID">ID of the Map on which the Unit exists.</param>
         /// <param name="x">X-axis of the Unit in the specified map.</param>
         /// <param name="y">Y-axis of the Unit in the specified map.</param>
+        [JsonConstructor]
         public Unit(GameData gameData, int id, string name, string visual, Color color, int mapID, int speed, int x, int y)
         {
             this.gameData = gameData;
@@ -73,6 +49,19 @@ namespace CanasUvighi
 
             this.energy = 0;
         }
+
+        public Unit(GameData gameData, Unit unit)
+            :this(
+            gameData, 
+            unit.id,
+            unit.name,
+            unit.visual,
+            unit.color,
+            unit.mapID,
+            unit.speed,
+            unit.x,
+            unit.y)
+        { }
         #endregion
 
         #region Properties
@@ -90,6 +79,11 @@ namespace CanasUvighi
             set { this.mapID = value; }
         }
 
+        public string Visual
+        {
+            get { return this.visual; }
+        }
+
         public string Name
         {
             get
@@ -97,19 +91,7 @@ namespace CanasUvighi
                 return this.name;
             }
         }
-
-        public Map UnitMap
-        {
-            get { return gameData.MapList[mapID]; }
-            /* *
-            set 
-            {
-                this.hasSpawned = false;
-                this.unitMap = value;
-            }
-            * */
-        }
-
+        
         public int X
         {
             get { return this.x; }
@@ -126,16 +108,29 @@ namespace CanasUvighi
             set { }
         }
 
+        public bool IsPlayerControl
+        {
+            get { return this.isPlayerControl; }
+            set { this.isPlayerControl = value; }
+        }
+
+        public Color Color
+        {
+            get { return this.color; }
+            set { this.color = value; }
+        }
+
+        [JsonIgnore]
         public int Energy
         {
             get { return this.energy; }
             set { this.energy = value; }
         }
 
-        public bool IsPlayerControl
+        [JsonIgnore]
+        public Map UnitMap
         {
-            get { return this.isPlayerControl; }
-            set { this.isPlayerControl = value; }
+            get { return gameData.MapList[mapID]; }
         }
         #endregion
 
@@ -262,7 +257,7 @@ namespace CanasUvighi
             // -> return false
             return false;
         }
-        
+        /* *
         public JSONUnit ToJSONUnit()
         {
             JSONUnit jsonUnit = new JSONUnit();
@@ -280,5 +275,6 @@ namespace CanasUvighi
 
             return jsonUnit;
         }
+         * */
     }
 }

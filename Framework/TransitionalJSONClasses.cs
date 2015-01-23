@@ -2,6 +2,7 @@
 
 namespace CanasUvighi
 {
+    /* *
     /// <summary>
     /// Temporary class for loading JSON Terrain.
     /// </summary>
@@ -47,4 +48,5 @@ namespace CanasUvighi
             return new Unit(gameData, id, name, visual, color, mapID, speed, x, y);
         }
     }
+     * */
 }

@@ -18,6 +18,7 @@ namespace CanasUvighi
         #region Fields
         // Game window resolution
         // 1024 x 640 is 16:10 aspect ratio
+        // (close to golden ratio)
         private const int
             TILE_SIZE = 32,
             SCREEN_WIDTH = 1024,
@@ -47,7 +48,7 @@ namespace CanasUvighi
             gameBox;
         private List<Rectangle> windowBorders;
 
-        private Map currentMap;
+        //private Map currentMap;
 
         // Loaded text-file based predefined game objects
         private GameData gameData;
@@ -234,7 +235,7 @@ namespace CanasUvighi
                         "npc_test",
                         "q",
                         Color.Blue,
-                        this.currentMap.ID,
+                        PC.MapID,
                         15, 0, 0);
 
                     this.unitActors.Add(npc);
@@ -433,7 +434,7 @@ namespace CanasUvighi
 
                         spriteBatch.DrawString(
                             K8KurrierFixed20,
-                            currentMap.GetTileVisual(x, y),
+                            gameData.MapList[PC.MapID].GetTileVisual(x, y),
                             vect,
                             fontColor);
                     }
@@ -488,24 +489,25 @@ namespace CanasUvighi
             // Create new GameData
             this.gameData = new GameData("SCiENiDE");
 
-            currentMap = new Map(
+            Map testMap = new Map(
                 0,  // ID
                 "TEST-MAP",
                 new FlatArray<Tile>(x, y),
                 this.gameData,
                 new int[] { 0, 1 }
                 );
+            this.gameData.MapList.Add(testMap);
             #endregion
 
             // check for first free coordinates for PC
             int pcX = 0,
                 pcY = 0;
             bool outerBreak = false;
-            for (int i = 0; i < currentMap.Height; i++)
+            for (int i = 0; i < testMap.Height; i++)
             {
-                for (int j = 0; j < currentMap.Width; j++)
+                for (int j = 0; j < testMap.Width; j++)
                 {
-                    if (!currentMap.GetTerrain(i, j).IsBlocked)
+                    if (!testMap.GetTerrain(i, j).IsBlocked)
                     {
                         pcX = i;
                         pcY = j;
@@ -525,7 +527,7 @@ namespace CanasUvighi
                 "SCiENiDE", 
                 "@",
                 Color.LightGreen,
-                this.currentMap.ID, 
+                testMap.ID, 
                 10, 
                 pcX, pcY);
 

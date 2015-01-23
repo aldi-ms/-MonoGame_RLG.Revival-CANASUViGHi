@@ -53,7 +53,7 @@ namespace CanasUvighi
             get { return this.isBlocked; }
         }
         #endregion
-
+        /* *
         /// <summary>
         /// Used for easier data transfer to JSON string.
         /// </summary>
@@ -69,5 +69,6 @@ namespace CanasUvighi
 
             return jsonTerrain;
         }
+         * */
     }
 }

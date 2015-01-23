@@ -42,8 +42,9 @@ namespace CanasUvighi
                 sFolder = SaveFolder.Modified;
             }
 
+            mapList = new List<Map>();
             // to this.mapList
-            LoadMaps(sFolder);
+            //LoadMaps(sFolder);
 
             // to this.npcList
             LoadUnitList(sFolder);
@@ -293,7 +294,7 @@ namespace CanasUvighi
             foreach (Unit unit in unitList) 
             {
                 saveString.Append(
-                    JsonConvert.SerializeObject(unit.ToJSONUnit())
+                    JsonConvert.SerializeObject(unit)
                     );
                 // Insert new line
                 saveString.Append('\n');
@@ -323,12 +324,12 @@ namespace CanasUvighi
             }
 
             List<Unit> loadedUnits = new List<Unit>();
-            JSONUnit tempUnit = null;
+            //JSONUnit tempUnit = null;
 
             foreach (string unitStr in unitStrings)
             {
-                tempUnit = JsonConvert.DeserializeObject<JSONUnit>(unitStr);
-                loadedUnits.Add(tempUnit.ToUnit(this));
+                //tempUnit = JsonConvert.DeserializeObject<JSONUnit>(unitStr);
+                loadedUnits.Add(new Unit(this, JsonConvert.DeserializeObject<Unit>(unitStr)));
             }
 
             return loadedUnits;
@@ -361,8 +362,9 @@ namespace CanasUvighi
 
                 foreach (string jsonStr in jsonStrings) 
                 {
-                    JSONTerrain ter =  JsonConvert.DeserializeObject<JSONTerrain>(jsonStr);
-                    this.terrainList.Add(ter.ToTerrain());
+                    this.terrainList.Add(
+                        JsonConvert.DeserializeObject<Terrain>(jsonStr)
+                        );
                 }
             }
         }
@@ -379,7 +381,7 @@ namespace CanasUvighi
             foreach (Terrain terrain in this.terrainList)
             {
                 saveString.Append(
-                    JsonConvert.SerializeObject(terrain.ToJSONTerrain())
+                    JsonConvert.SerializeObject(terrain)
                     );
                 // Insert new line
                 saveString.Append('\n');
