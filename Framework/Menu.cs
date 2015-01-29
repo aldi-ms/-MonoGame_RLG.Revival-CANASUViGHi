@@ -17,13 +17,13 @@ namespace CanasUvighi
     public class Menu
     {
         private SpriteBatch spriteBatch;
-        private MenuItem[] menuItems;
+        private List<MenuItem> menuItems;
         private List<MenuItem> choosableItems;
         private Color inactiveColor = Color.Wheat;
         private Color activeColor = Color.Crimson;
 
         /// <summary>
-        /// Create a menu item.
+        /// Create a menu object.
         /// </summary>
         /// <param name="spriteBatch">The SpriteBatck used to draw the Menu.</param>
         /// <param name="inactiveColor">The Color of the not-active/inactive menu items.</param>
@@ -38,26 +38,26 @@ namespace CanasUvighi
         }
 
         /// <summary>
-        /// Configure the menu with the given menu items.
+        /// Add the give MenuItems to our Menu.
         /// </summary>
-        /// <param name="menuItems">Create menu items from each MenuItem, keeps them ordered.</param>
-        public void ConfigureMenu(MenuItem[] menuItems)
+        /// <param name="menuItems">Add MenuItems to this menu, keeps them ordered.</param>
+        public void AddMenuItems(List<MenuItem> menuItems)
         {
             bool oneActive = false;
 
             foreach (var item in menuItems)
             {
                 // Check if there is only 1 (one) active item in the menu, otherwise throw an exception
-                if (item.isActive && oneActive)
+                if (item.IsActive && oneActive)
                 {
                     // Change type of exception?
                     throw new ArgumentException("More than one active items in menu. There has to be exactly one.");
                 }
-                if (item.isActive && !oneActive)
+                if (item.IsActive && !oneActive)
                     oneActive = true;
 
                 // Add items with isOption = true in a separate List<> for easier iteration.
-                if (item.isOption)
+                if (item.IsOption)
                     choosableItems.Add(item);
             }
 
@@ -76,10 +76,10 @@ namespace CanasUvighi
         {
             if (index == -1)
             {
-                foreach (var drawStr in menuItems)
+                foreach (MenuItem menuItem in menuItems)
                 {
                     // Send each string for drawing
-                    CustomDrawString(drawStr);
+                    CustomDrawString(menuItem);
                 }
             }
             else
@@ -103,7 +103,7 @@ namespace CanasUvighi
         {
             for (int i = 0; i < choosableItems.Count; i++)
             {
-                if (choosableItems[i].isActive)
+                if (choosableItems[i].IsActive)
                     return i;
             }
             return -1;
@@ -123,17 +123,17 @@ namespace CanasUvighi
                 {
                     activatePrev = false;
 
-                    choosableItems[i].isActive = true;
+                    choosableItems[i].IsActive = true;
 
                     // and exit for loop, our work here is done.
                     break;
                 }
 
                 // Get the active menu item
-                if (choosableItems[i].isActive)
+                if (choosableItems[i].IsActive)
                 {
                     // Inactivate it
-                    choosableItems[i].isActive = false;
+                    choosableItems[i].IsActive = false;
 
                     // Activate the previous menu item
                     activatePrev = true;
@@ -144,7 +144,7 @@ namespace CanasUvighi
             {
                 activatePrev = false;
 
-                this.choosableItems[this.choosableItems.Count - 1].isActive = true;
+                this.choosableItems[this.choosableItems.Count - 1].IsActive = true;
             }
         }
 
@@ -161,15 +161,15 @@ namespace CanasUvighi
                 {
                     activateNext = false;
 
-                    choosableItems[i].isActive = true;
+                    choosableItems[i].IsActive = true;
                     break;
                 }
 
                 // Get the active menu item
-                if (choosableItems[i].isActive)
+                if (choosableItems[i].IsActive)
                 {
                     // Inactivate it
-                    choosableItems[i].isActive = false;
+                    choosableItems[i].IsActive = false;
 
                     // Activate the next menu item
                     activateNext = true;
@@ -180,7 +180,7 @@ namespace CanasUvighi
             {
                 activateNext = false;
 
-                this.choosableItems[0].isActive = true;
+                this.choosableItems[0].IsActive = true;
             }
         }
 
@@ -190,8 +190,11 @@ namespace CanasUvighi
         /// <param name="menuItem">The MenuItem element to be drawn.</param>
         private void CustomDrawString(MenuItem menuItem)
         {
-            Color col = menuItem.isActive ? this.activeColor : this.inactiveColor;
-            this.spriteBatch.DrawString(menuItem.font, menuItem.str, menuItem.vector2, col);
+            Color col = menuItem.IsActive ? 
+                this.activeColor : 
+                this.inactiveColor;
+
+            this.spriteBatch.DrawString(menuItem.Font, menuItem.Text, menuItem.Vector, col);
         }
     }
 }

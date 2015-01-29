@@ -22,7 +22,7 @@ namespace CanasUvighi
             if (false)
             {
                 // JSON Tests
-                GameData gData = new GameData("koz");
+                GameData gData = new GameData("koz", false);
                 Unit test = new Unit(gData, 3, "test", "#", Color.Aqua, 0, 12, 3, 4);
 
                 string str = JsonConvert.SerializeObject(test);

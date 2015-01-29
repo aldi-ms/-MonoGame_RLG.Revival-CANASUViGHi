@@ -26,7 +26,10 @@ namespace CanasUvighi
         /// Create a new Data object to load modified/saved data values
         /// for common game objects / elements.
         /// </summary>
-        public GameData(string playerName)
+        /// <param name="playerName">The player name will be used for save file structure.</param>
+        /// <param name="overwrite">If the save file for the player exists, should it be 
+        /// overwritten (deleted and new save created)?</param>
+        public GameData(string playerName, bool overwrite)
         {
             // to this.terrainList
             LoadTerrainList();
@@ -37,9 +40,17 @@ namespace CanasUvighi
 
             // if the save is present load its values
             // else load default
-            if (fm.SaveExists)
+            if (FileManager.SaveExists(playerName))
             {
-                sFolder = SaveFolder.Modified;
+                if (overwrite)
+                {
+                    fm.ResetCharacterFolders();
+                    sFolder = SaveFolder.Default;
+                }
+                else
+                {
+                    sFolder = SaveFolder.Modified;
+                }
             }
 
             mapList = new List<Map>();

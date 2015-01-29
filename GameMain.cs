@@ -31,8 +31,10 @@ namespace CanasUvighi
 
         private bool
             inGame = false,
-            inMenu = false,
-            waitForAction = false;
+            inMainMenu = false,
+            inOverWriteMenu = false,
+            waitForAction = false,
+            secondaryMenuChoice = false;
 
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
@@ -60,20 +62,22 @@ namespace CanasUvighi
         // Units Player Character
         private Unit PC;
 
-        // list for the rest of the units, iterate over it.
-        private List<Unit> unitActors;
-
         // the main menu
-        private Menu mainMenu;
+        private Menu 
+            mainMenu, 
+            overwriteMenu;
 
         // colors used for the game
         private Color
             borderColor = new Color(3, 54, 73),
             fontColor = new Color(205, 179, 128),
+            inActiveFontColor = new Color(232, 221, 203),
             backgroundColor = new Color(3, 101, 100);
 
         private FieldOfView<Tile> fieldOfView;
-        private Point fovSource;
+        private Point 
+            fovSource,
+            viewBoxTiles;
         #endregion
 
         #region Constructor, Init, (Un)LoadContent
@@ -137,14 +141,20 @@ namespace CanasUvighi
             #endregion
 
             // Create and configure a Menu, which will be used as the Game's Main Menu
-            mainMenu = new Menu(this.spriteBatch, this.fontColor, new Color(232, 221, 203));
-            mainMenu.ConfigureMenu(MainMenuItems(this.instruction22, this.specialElite22));
+            mainMenu = UI.MainMenu(
+                spriteBatch, 
+                instruction22, 
+                specialElite22,
+                new Vector2(50f, 50f),
+                fontColor, 
+                inActiveFontColor);
 
             // Indicates that we are in the game menu.
-            inMenu = true;
+            inMainMenu = true;
 
-            // Initialize visual borders.
-            SetupWindowBorders();
+            // Initialize border rectangles,
+            // other hard-coded values (viewBoxTiles)
+            SetupPredefined();
             
             // get a state for the oldState of keyboard
             oldKBState = Keyboard.GetState();
@@ -174,21 +184,8 @@ namespace CanasUvighi
             // Get the current Keyboard state
             newKBState = Keyboard.GetState();
 
-            if (CheckKeys(Keys.Escape))
-            {
-                if (inMenu)
-                {
-                    Quit();
-                }
-                if (inGame)
-                {
-                    inGame = false;
-                    inMenu = true;
-                }
-            }
-
             #region In Menu
-            if (inMenu)
+            if (inMainMenu)
             {
                 // Down (arrows, numpad and vi-keys)
                 if (CheckKeys(Keys.Down, Keys.J, Keys.NumPad2))
@@ -202,15 +199,19 @@ namespace CanasUvighi
                     mainMenu.Previous();
                 }
 
-                // Enter || Space
+                // Enter || Space to choose
                 if (CheckKeys(Keys.Enter, Keys.Space))
                 {
-                    inMenu = false; 
+                    inMainMenu = false; 
 
-                    switch (this.mainMenu.Choose())
+                    switch (mainMenu.Choose())
                     {
                         case 0:
                             NewGame(); 
+                            break;
+
+                        case 1:
+                            LoadGame();
                             break;
 
                         case 3:
@@ -218,10 +219,55 @@ namespace CanasUvighi
                             break;
 
                         default:
-                            inMenu = true; 
+                            inMainMenu = true; 
                             break;
                     }
                 }
+            }
+
+            if (inOverWriteMenu)
+            {
+                // Down (arrows, numpad and vi-keys)
+                if (CheckKeys(Keys.Down, Keys.J, Keys.NumPad2))
+                {
+                    overwriteMenu.Next();
+                }
+
+                // Up (arrows, numpad and vi-keys)
+                if (CheckKeys(Keys.Up, Keys.K, Keys.NumPad8))
+                {
+                    overwriteMenu.Previous();
+                }
+
+                // Boolean secondaryMenuChoice is needed for skipping the 
+                // keypress from the previous menu (main menu), otherwise
+                // it is caught and choise is made instantly.
+                if (CheckKeys(Keys.Enter, Keys.Space) && secondaryMenuChoice)
+                {
+                    inOverWriteMenu = false;
+
+                    switch (overwriteMenu.Choose())
+                    {
+                        case 0:
+                            secondaryMenuChoice = false;
+                            NewGame(true);
+                            break;
+
+                        case 1:
+                            secondaryMenuChoice = false;
+                            LoadGame();
+                            break;
+
+                        default:
+                            inOverWriteMenu = true;
+                            break;
+                    }
+                }
+
+                // After skipping the first iteration
+                // set bool to true so we can get the
+                // real keypress.
+                secondaryMenuChoice = true;
             }
             #endregion
 
@@ -232,21 +278,20 @@ namespace CanasUvighi
                 if (CheckKeys(Keys.Q))
                 {
                     Unit npc = new Unit(
-                        this.gameData,
-                        this.unitActors.Count + 1, 
+                        gameData,
+                        gameData.UnitList.Count + 1, 
                         "npc_test",
                         "q",
                         Color.Blue,
                         PC.MapID,
                         10, 0, 0);
                     gameData.UnitList.Add(npc);
-                    this.unitActors.Add(npc);
                     npc.Spawn();
                 }
                 
                 // first save number of units/actors that have energy >= TURN_COST
                 // and go to next turn after all of them have take action
-                foreach(Unit actor in unitActors)
+                foreach (Unit actor in gameData.UnitList)
                 {
                     if (!waitForAction)
                         actor.Energy += actor.Speed;
@@ -350,7 +395,29 @@ namespace CanasUvighi
                         }
                     }
                 }
+            }
             #endregion
+
+            if (CheckKeys(Keys.Escape))
+            {
+                if (inMainMenu)
+                {
+                    Quit();
+                }
+                else if (inGame)
+                {
+                    inGame = false;
+                    inOverWriteMenu = false;
+                    inMainMenu = true;
+                    gameData.SaveGameData();
+                }
+                else if (inOverWriteMenu)
+                {
+                    inOverWriteMenu = false;
+                    secondaryMenuChoice = false;
+                    inGame = false;
+                    inMainMenu = true;
+                }
             }
 
             // Set the old keyboard state to newKBState
@@ -370,7 +437,7 @@ namespace CanasUvighi
             // Clear window and set color
             if (inGame)
                 GraphicsDevice.Clear(Color.Black);
-            else if (inMenu)
+            else if (inMainMenu)
                 GraphicsDevice.Clear(borderColor);
 
             spriteBatch.Begin();
@@ -379,10 +446,17 @@ namespace CanasUvighi
             Texture2D simpleTexture = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
             simpleTexture.SetData<Color>( new[] { Color.White } );
             
-            if (inMenu)
+            if (inMainMenu)
             {
-                // Begin with main menu
+                // Draw the main menu.
                 mainMenu.Draw();
+            }
+            else if (inOverWriteMenu)
+            {
+                // Draw the overwrite "menu"
+                // (ask whether we should overwrite 
+                // an existing save or load it).
+                overwriteMenu.Draw();
             }
             else if (inGame)
             {
@@ -427,23 +501,30 @@ namespace CanasUvighi
                 {
                     fovSource.X = PC.X;
                     fovSource.Y = PC.Y;
-                    this.fieldOfView.ComputeFov(PC.X, PC.Y, 5, true, FOVMethod.MRPAS, RangeLimitShape.Octagon);
+                    fieldOfView.ComputeFov(PC.X, PC.Y, 5, true, FOVMethod.MRPAS, RangeLimitShape.Octagon);
                 }
-                int viewBoxTilesHeight = gameBox.Height / TILE_SIZE,
-                    viewBoxTilesWidth = gameBox.Width / TILE_SIZE;
 
-                int mapX = PC.X - (viewBoxTilesHeight / 2);
-                int mapY = PC.Y - (viewBoxTilesWidth / 2);
+                // Get the start coordinates for the Map
+                int mapX = PC.X - (viewBoxTiles.X / 2);
+                int mapY = PC.Y - (viewBoxTiles.Y / 2);
+
+                // Check the lowerbound
                 if (mapX < 0) mapX = 0;
                 if (mapY < 0) mapY = 0;
-                if (mapX + viewBoxTilesHeight >= gameData.MapList[PC.MapID].Height)
-                    mapX = gameData.MapList[PC.MapID].Height - viewBoxTilesHeight;
-                if (mapY + viewBoxTilesWidth >= gameData.MapList[PC.MapID].Width)
-                    mapY = gameData.MapList[PC.MapID].Width - viewBoxTilesWidth;
 
-                for (int x = 0; x < viewBoxTilesHeight; x++)
+                // Number of tiles in the gameBox are predefined in 
+                // viewBoxTiles point, values calculated in SetupPredefined();
+
+                // Check the higherbound (X)
+                if (mapX + viewBoxTiles.X >= gameData.MapList[PC.MapID].Height)
+                    mapX = gameData.MapList[PC.MapID].Height - viewBoxTiles.X;
+                // Check the higherbound (Y)
+                if (mapY + viewBoxTiles.Y >= gameData.MapList[PC.MapID].Width)
+                    mapY = gameData.MapList[PC.MapID].Width - viewBoxTiles.Y;
+
+                for (int x = 0; x < viewBoxTiles.X; x++)
                 {
-                    for (int y = 0; y < viewBoxTilesWidth; y++)
+                    for (int y = 0; y < viewBoxTiles.Y; y++)
                     {
                         Vector2 vect = new Vector2(14 + y * TILE_SIZE, 10 + x * TILE_SIZE);
                         
@@ -463,11 +544,11 @@ namespace CanasUvighi
             string debugInfo = "";
             if (PC != null)
             {
-                debugInfo = //Newtonsoft.Json.JsonConvert.SerializeObject(this.map.GetTerrain(PC.X, PC.Y).ToJSONTerrain());
+                debugInfo = 
                     //string.Format("row:{0};col:{1};ttl_time:{2}", this.PC.X, this.PC.Y, gameTime.TotalGameTime);
-                string.Format("[{0};{1}] energy:{2}; turns:{3}", PC.X, PC.Y, PC.Energy, turns);
-                //string.Format("x:{0},y:{1}", mouse.X, mouse.Y);
-                //string.Format("gameBox[x:{0};y:{1};width:{2};height{3};]", gameBox.X, gameBox.Y, gameBox.Width, gameBox.Height);
+                    string.Format("[x:{0};y:{1}] energy:{2}; turns:{3}", PC.X, PC.Y, PC.Energy, turns);
+                    //string.Format("x:{0},y:{1}", mouse.X, mouse.Y);
+                    //string.Format("gameBox[x:{0};y:{1};width:{2};height{3};]", gameBox.X, gameBox.Y, gameBox.Width, gameBox.Height);
             }
 
             spriteBatch.DrawString(consolas12, debugInfo, new Vector2(15, GraphicsDevice.Viewport.Height - 32), this.fontColor);
@@ -493,82 +574,101 @@ namespace CanasUvighi
         /// <summary>
         /// Start a new game.
         /// </summary>
-        private void NewGame()
+        private void NewGame(bool overwrite = false)
         {
-            #region Create Test Map
-            // Map size
-            int x = GraphicsDevice.Viewport.Height / TILE_SIZE;
-            int y = GraphicsDevice.Viewport.Width / TILE_SIZE;
+            // ask for player name
+            // hardcode for now - MonoGame doesn't have a Buffer Input
+            string playerName = "SCiENiDE";
 
-            // Create new GameData
-            this.gameData = new GameData("SCiENiDE");
-
-            Map testMap = new Map(
-                1,  // ID
-                "TEST-MAP",
-                new FlatArray<Tile>(x, y),
-                this.gameData,
-                new int[] { 0, 1 }
-                );
-            this.gameData.MapList.Add(testMap);
-            #endregion
-
-            // check for first free coordinates for PC
-            Point freePos = new Point(0, 0);
-            bool outerBreak = false;
-
-            for (int i = 0; i < testMap.Height; i++)
+            // ask to overwrite or to load if the save exists
+            if (FileManager.SaveExists(playerName) && !overwrite)
             {
-                for (int j = 0; j < testMap.Width; j++)
+                this.overwriteMenu = UI.OverwriteMenu(
+                    this.spriteBatch,
+                    specialElite22,
+                    new Vector2(340f, 60f),
+                    this.fontColor,
+                    this.inActiveFontColor
+                    );
+
+                inOverWriteMenu = true;
+                secondaryMenuChoice = false;
+            }
+            else
+            {
+                this.gameData = new GameData(playerName, overwrite);
+
+                #region Create Test Map
+                // Map size
+                int x = GraphicsDevice.Viewport.Height / TILE_SIZE;
+                int y = GraphicsDevice.Viewport.Width / TILE_SIZE;
+
+                Map testMap = new Map(
+                    1,  // Map ID
+                    "TEST-MAP",
+                    new FlatArray<Tile>(x, y),
+                    this.gameData,
+                    new int[] { 0, 1 }
+                    );
+
+                // Create new GameData
+                this.gameData.MapList.Add(testMap);
+                #endregion
+
+                // Check for first free coordinates for the PC
+                Point freePos = Point.Zero;
+                bool outerBreak = false;
+
+                for (int i = 0; i < testMap.Height; i++)
                 {
-                    if (!testMap.GetTerrain(i, j).IsBlocked)
+                    for (int j = 0; j < testMap.Width; j++)
                     {
-                        freePos = new Point(i, j);
-                        outerBreak = true;
-                        break;
+                        if (!testMap.GetTerrain(i, j).IsBlocked)
+                        {
+                            freePos = new Point(i, j);
+                            outerBreak = true;
+                            break;
+                        }
                     }
+
+                    if (outerBreak)
+                        break;
                 }
 
-                if (outerBreak) 
-                    break;
+                // Create a Player Character and spawn it on the map
+                PC = new Unit(
+                    this.gameData,
+                    1,
+                    "SCiENiDE",
+                    "@",
+                    Color.LightGreen,
+                    testMap.ID,
+                    10,
+                    freePos.X,
+                    freePos.Y);
+
+                PC.IsPlayerControl = true;
+                PC.Spawn();
+
+                // Add the player to the Unit List
+                this.gameData.UnitList.Add(PC);
+
+                // Create Field of View (shadows)
+                this.fieldOfView = new FieldOfView<Tile>(gameData.MapList[PC.MapID].Tiles);
+                this.fovSource = new Point(PC.X + 1, PC.Y);
+
+                // Reset waitForAction state
+                waitForAction = false;
+                // Indicate we are currently playing
+                inGame = true;
             }
-
-            // Create a Player Character and spawn it on the map
-            PC = new Unit(
-                this.gameData, 
-                1, 
-                "SCiENiDE", 
-                "@",
-                Color.LightGreen,
-                testMap.ID, 
-                10, 
-                freePos.X,
-                freePos.Y);
-
-            PC.IsPlayerControl = true;
-            PC.Spawn();
-
-            // Create Field of View (shadows)
-            this.fieldOfView = new FieldOfView<Tile>(gameData.MapList[PC.MapID].Tiles);
-            this.fovSource = new Point(PC.X + 1, PC.Y);
-
-            // Initialize a list for the Unit actors
-            unitActors = new List<Unit>();
-            // Add PC to the actor list
-            unitActors.Add(PC);
-            // Add the player to the Unit List
-            this.gameData.UnitList.Add(PC);
-            // Indicate we are currently playing (in game)
-            inGame = true;
-            // Reset previous settings/values
-            waitForAction = false;
-        }      
+        }
         
         private void LoadGame()
         {
+            throw new NotImplementedException("LoadGame() is not yet implemented!");
             // Reset previous settings/values
-            waitForAction = false;
-            unitActors.Clear();
+            // waitForAction = false;
 
             //currentMap = gameDataBase.LoadMap(@"../../../maps/0_TEST-MAP[22x36].cumap");
 
@@ -595,11 +695,12 @@ namespace CanasUvighi
         }
 
         /// <summary>
-        /// Setup the border box of the game window as well as the gameBox.
+        /// Setup the border box of the game window,
+        /// the gameBox and viewBoxTiles point for future use.
         /// </summary>
-        private void SetupWindowBorders()
+        private void SetupPredefined()
         {
-            windowBorders = new List<Rectangle> {
+            this.windowBorders = new List<Rectangle> {
                 // top border
                 new Rectangle(0, 0, GraphicsDevice.Viewport.Width, 10),
 
@@ -616,62 +717,17 @@ namespace CanasUvighi
             //(GraphicsDevice.Viewport.Height / TILE_SIZE) * numberOfTiles
 
             // define gameBox - the game view rectangle
-            gameBox = new Rectangle(
+            this.gameBox = new Rectangle(
                 10,
                 10,
                 (GraphicsDevice.Viewport.Width / 3) * 2,
                 (GraphicsDevice.Viewport.Height / 4) * 3
                 );
-        }
 
-        // change menu items load from file (with JSON strings).
-        /// <summary>
-        /// Create/Load menu items for the main menu.
-        /// </summary>
-        /// <param name="titleFont">SpriteFont used for the menu title.</param>
-        /// <param name="menuOptionsFont">SpriteFont used for menu options.</param>
-        /// <returns>Array of pre-defined MenuItems, ready for display.</returns>
-        private MenuItem[] MainMenuItems(SpriteFont titleFont, SpriteFont menuOptionsFont)
-        {
-            MenuItem[] menuItems = 
-            {
-                new MenuItem(
-                    titleFont,
-                    "CANAS UViGHi",
-                    new Vector2(20f, 10f),
-                    false,
-                    false),
-
-                new MenuItem(
-                    menuOptionsFont,
-                    "new game",
-                    new Vector2(80f, 100f),
-                    true,
-                    true),
-
-                new MenuItem(
-                    menuOptionsFont,
-                    "load game",
-                    new Vector2(80f, 150f),
-                    false,
-                    true),
-
-                new MenuItem(
-                    menuOptionsFont,
-                    "options",
-                    new Vector2(80f, 200f),
-                    false,
-                    true),
-
-                new MenuItem(
-                    menuOptionsFont,
-                    "exit",
-                    new Vector2(80f, 250f),
-                    false,
-                    true)
-            };
-
-            return menuItems;
+            this.viewBoxTiles = new Point(
+                gameBox.Height / TILE_SIZE,
+                gameBox.Width / TILE_SIZE
+                );
         }
 
         /// <summary>
@@ -679,12 +735,6 @@ namespace CanasUvighi
         /// </summary>
         private void Quit()
         {
-            //if (this.unitActors.Contains(this.PC))
-            //    this.unitActors.Remove(this.PC);
-
-            gameData.UnitList = this.unitActors;
-            //gameData.PlayerCharacter = this.PC;
-
             gameData.SaveGameData();
 
             Exit();

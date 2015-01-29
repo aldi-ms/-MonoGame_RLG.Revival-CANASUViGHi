@@ -72,9 +72,9 @@
     <Compile Include="Framework\ArtificialIntelligence.cs" />
     <Compile Include="Framework\Container.cs" />
     <Compile Include="Framework\CardinalDirection.cs" />
-    <Compile Include="Framework\DrawString.cs" />
     <Compile Include="Framework\SaveFolder.cs" />
     <Compile Include="Framework\StringCipher.cs" />
+    <Compile Include="Framework\UI.cs" />
     <Compile Include="GameMain.cs" />
     <Compile Include="Framework\GameData.cs" />
     <Compile Include="Framework\FieldOfView.cs" />

@@ -11,7 +11,7 @@ namespace CanasUvighi
 
         #region Constructors
         /// <summary>
-        /// Create a new empty Map and fill it with random Terrain/s. (GEN)
+        /// Create a new empty Map and fill it with random Terrain/s. (GEN MAP)
         /// </summary>
         /// <param name="id">ID of the Map.</param>
         /// <param name="name">Name of the Map.</param>
@@ -41,7 +41,7 @@ namespace CanasUvighi
         }
 
         /// <summary>
-        /// Create a Map with the specified Tiles. (LOAD)
+        /// Create a Map with the specified Tiles. (CREATE MAP)
         /// </summary>
         /// <param name="id">ID of the Map.</param>
         /// <param name="tiles">Flattened 2D array of Tiles, 
@@ -81,7 +81,7 @@ namespace CanasUvighi
         #endregion
         
         /// <summary>
-        /// Get the visual string of the highest priority Tile layer.
+        /// Get the visual string of the highest priority Tile Layer.
         /// </summary>
         /// <param name="x">X axis of the Tile.</param>
         /// <param name="y">Y axis of the Tile.</param>
@@ -89,6 +89,10 @@ namespace CanasUvighi
         public string GetTileVisual(int x, int y)
         {
             TileLayers layer = mapTiles[x, y].Layers;
+
+            // if the Tile is not visible, return whitespace
+            if (!this.Tiles[x, y].IsVisible)
+                return " ";
 
             if (layer.Unit != 0)
             {
@@ -106,11 +110,8 @@ namespace CanasUvighi
             }
             else
             {
-                if (this.Tiles[x, y].IsVisible)
-                    // if none of the above exist in the Tile, show Terrain
-                    return gameData.TerrainList[layer.Terrain].Visual;
-                else
-                    return " ";
+                // if none of the above exist in the Tile, return the Terrain
+                return gameData.TerrainList[layer.Terrain].Visual;
             }
         }
 

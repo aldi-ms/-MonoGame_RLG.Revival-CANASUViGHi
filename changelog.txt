@@ -1,5 +1,15 @@
 ﻿Change Log
 
+->29.01.2015
+*The game no longer draws Units that are on not-visible Tiles.
+*Removed the DrawString class.
+
+->28.01.2015
+*Created static class UI, keeping methods to create the game menus for now.
+*If a new game is started with an existing save name the games asks whether 
+to overwrite the existing save or to load the save.
+*Implemented an overwrite menu in the UI class.
+
 ->23.01.2015
 *Reworked the draw map code,  we finally have a basic scrollable map, which
 won't go overbound. 

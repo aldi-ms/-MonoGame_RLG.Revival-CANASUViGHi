@@ -1,3 +1,10 @@
-﻿TO DO LIST:
+﻿
+	TO DO LIST
 
-#.Update and clear up the DrawMap code, as well as the FOV calc
+-> Update and clear up the DrawMap code, as well as the FOV calc
+
+-> Write a PriorityQueue for keeping the unit actors?
+
+-> Menu probably need improvement, looking like / prone to spaghetti code (and errors).
+
+-> Implement a way to print tiles in the color they are (instead of using fontColor in Draw Map code).

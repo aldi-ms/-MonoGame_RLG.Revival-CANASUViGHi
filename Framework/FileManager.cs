@@ -125,16 +125,21 @@ namespace CanasUvighi
             }
         }
 
-        public bool SaveExists
+        public static bool SaveExists(string name)
         {
-            get
-            {
-                return File.Exists(ModifiedUnitFile);
-            }
+            string file = mainFolder + name + "/" + unitFile;
+
+            return File.Exists(file);
         }
         #endregion
 
-        public void DeleteCharacterFolders()
+        public void ResetCharacterFolders()
+        {
+            DeleteCharacterFolders();
+            CreateFolderStructure();
+        }
+
+        private void DeleteCharacterFolders()
         {
             if (Directory.Exists(PlayerCharacterFolder))
             {
@@ -144,8 +149,8 @@ namespace CanasUvighi
 
         private void CreateFolderStructure()
         {
-            // Default dir should exist.
             /* *
+            // Default dir should exist.
             if (!Directory.Exists(DefaultDataFolder))
             {
                 Directory.CreateDirectory(DefaultDataFolder);
