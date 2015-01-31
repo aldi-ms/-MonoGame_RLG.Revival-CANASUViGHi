@@ -53,22 +53,5 @@ namespace CanasUvighi
             get { return this.isBlocked; }
         }
         #endregion
-        /* *
-        /// <summary>
-        /// Used for easier data transfer to JSON string.
-        /// </summary>
-        /// <returns></returns>
-        public JSONTerrain ToJSONTerrain()
-        {
-            JSONTerrain jsonTerrain = new JSONTerrain();
-            jsonTerrain.id = this.id;
-            jsonTerrain.name = this.name;
-            jsonTerrain.visual = this.visual;
-            jsonTerrain.isTransparent = this.isTransparent;
-            jsonTerrain.isBlocked = this.isBlocked;
-
-            return jsonTerrain;
-        }
-         * */
     }
 }

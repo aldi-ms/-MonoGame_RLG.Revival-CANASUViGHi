@@ -46,8 +46,7 @@ namespace CanasUvighi
 
         // gameBox is the rectangle containing
         // the actual game field/board
-        private Rectangle
-            gameBox;
+        private Rectangle gameBox;
         private List<Rectangle> windowBorders;
 
         // Loaded text-file based predefined game objects
@@ -288,14 +287,19 @@ namespace CanasUvighi
                     gameData.UnitList.Add(npc);
                     npc.Spawn();
                 }
-                
+
+                // Sorts the actors by Energy
+                // gameData.UnitList.Sort();
+
                 // first save number of units/actors that have energy >= TURN_COST
                 // and go to next turn after all of them have take action
-                foreach (Unit actor in gameData.UnitList)
+                foreach (IActor actor in gameData.UnitList)
                 {
                     if (!waitForAction)
+                    {
                         actor.Energy += actor.Speed;
-
+                    }
+                     
                     if (actor.Energy >= ACTION_COST)
                     {
                         if (actor.IsPlayerControl)
@@ -530,7 +534,7 @@ namespace CanasUvighi
                         
                         spriteBatch.DrawString(
                             K8KurrierFixed20,
-                            gameData.MapList[PC.MapID].GetTileVisual(mapX + x, mapY + y),
+                            gameData.MapList[PC.MapID].TileVisual(mapX + x, mapY + y),
                             vect,
                             fontColor);
                     }

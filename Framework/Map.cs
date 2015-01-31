@@ -28,7 +28,7 @@ namespace CanasUvighi
             int[] terrainIDs)
         {
             this.id = id;
-            // should check name for invalid characters!
+            // should check name for invalid characters! [a-Z0-9]?
             this.name = name;
             this.mapTiles = tiles;
             this.gameData = gameData;
@@ -86,7 +86,7 @@ namespace CanasUvighi
         /// <param name="x">X axis of the Tile.</param>
         /// <param name="y">Y axis of the Tile.</param>
         /// <returns>The visual string of the highest priority element.</returns>
-        public string GetTileVisual(int x, int y)
+        public string TileVisual(int x, int y)
         {
             TileLayers layer = mapTiles[x, y].Layers;
 

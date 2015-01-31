@@ -288,7 +288,9 @@ namespace CanasUvighi
             }
 
             if (this.unitList == null)
+            {
                 this.unitList = new List<Unit>();
+            }
         }
 
         /// <summary>
@@ -313,8 +315,10 @@ namespace CanasUvighi
 
             // Save to file, overwrite old
             using (var sWriter = new StreamWriter(npcFile, false, ENCODING))
+            {
                 sWriter.Write(saveString);
                 //sWriter.Write(StringCipher.Encrypt(saveString.ToString(), "PassWord_01"));
+            }
         }
 
         /// <summary>

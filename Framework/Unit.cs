@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace CanasUvighi
 {
-    public class Unit
+    public class Unit : IActor, IComparable<Unit>
     {
         private bool
             isPlayerControl = false,
@@ -73,7 +73,15 @@ namespace CanasUvighi
         public int MapID
         {
             get { return this.mapID; }
-            set { this.mapID = value; }
+
+            set
+            { 
+                // Check if the parsed value is an existing Map!
+                if (this.gameData.MapList[value] != null)
+                {
+                    this.mapID = value;
+                }
+            }
         }
 
         public string Visual
@@ -83,10 +91,7 @@ namespace CanasUvighi
 
         public string Name
         {
-            get
-            {
-                return this.name;
-            }
+            get { return this.name; }
         }
         
         public int X
@@ -104,7 +109,7 @@ namespace CanasUvighi
         public int Speed
         {
             get { return this.speed; }
-            set { }
+            set { this.speed = value; }
         }
 
         public bool IsPlayerControl
@@ -196,9 +201,11 @@ namespace CanasUvighi
                 // Set unit to the new position
                 UnitMap.SetUnit(this.X, this.Y, this.id);
             }
-                // Move was illegal, return false
-            else 
+            // Move was illegal, return false
+            else
+            {
                 return false;
+            }
 
             // Subract energy cost for the move
             this.energy -= 100;
@@ -256,24 +263,11 @@ namespace CanasUvighi
             // -> return false
             return false;
         }
-        /* *
-        public JSONUnit ToJSONUnit()
-        {
-            JSONUnit jsonUnit = new JSONUnit();
-            jsonUnit.isPlayerControl = this.isPlayerControl;
-            jsonUnit.hasSpawned = this.hasSpawned;
-            jsonUnit.id = this.id;
-            jsonUnit.x = this.x;
-            jsonUnit.y = this.y;
-            jsonUnit.speed = this.speed;
-            jsonUnit.energy = this.energy;
-            jsonUnit.name = this.name;
-            jsonUnit.visual = this.visual;
-            jsonUnit.color = this.color;
-            jsonUnit.mapID = this.mapID;
 
-            return jsonUnit;
+        public int CompareTo(Unit unit)
+        {
+            int result = unit.energy - this.energy;
+            return result;
         }
-         * */
     }
 }
