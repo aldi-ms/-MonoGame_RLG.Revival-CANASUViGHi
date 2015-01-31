@@ -1,4 +1,13 @@
-﻿Change Log
+﻿
+							Change Log
+			"Canas Uvighi" [WIP] RogueLike/RPG 2D game by
+					Aleksandar Dimitrov SCiENiDE
+
+->01.02.2015
+*Turn based system now works *hopefully* as intended. The Actors are
+sorted by their current Energy prior to giving the ones over the
+base-turn-cost control.
+
 
 ->31.01.2015
 *Implemented IActor interface for basic representation of a object that

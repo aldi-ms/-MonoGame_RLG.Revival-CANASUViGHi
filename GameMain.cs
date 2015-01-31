@@ -25,7 +25,7 @@ namespace CanasUvighi
             SCREEN_HEIGHT = 640,
 
             // minimum energy needed for taking a turn
-            ACTION_COST = 100;
+            TURN_COST_MIN = 100;
 
         private ulong turns;
 
@@ -33,7 +33,7 @@ namespace CanasUvighi
             inGame = false,
             inMainMenu = false,
             inOverWriteMenu = false,
-            waitForAction = false,
+            waitPlayerAction = false,
             secondaryMenuChoice = false;
 
         private GraphicsDeviceManager graphics;
@@ -283,28 +283,33 @@ namespace CanasUvighi
                         "q",
                         Color.Blue,
                         PC.MapID,
-                        10, 0, 0);
+                        10, 8, 8);
                     gameData.UnitList.Add(npc);
                     npc.Spawn();
                 }
 
-                // Sorts the actors by Energy
-                // gameData.UnitList.Sort();
-
-                // first save number of units/actors that have energy >= TURN_COST
-                // and go to next turn after all of them have take action
-                foreach (IActor actor in gameData.UnitList)
+                // If the player is not taking a turn - add speed 
+                // to all actors' energy
+                if (!waitPlayerAction)
                 {
-                    if (!waitForAction)
+                    foreach (IActor actor in gameData.UnitList)
                     {
                         actor.Energy += actor.Speed;
                     }
-                     
-                    if (actor.Energy >= ACTION_COST)
+                }
+
+                // Sorts the actors by Energy
+                gameData.UnitList.Sort();
+
+                // Give control to actors with Energy at least
+                // the base turn cost
+                foreach (IActor actor in gameData.UnitList)
+                {
+                    if (actor.Energy >= TURN_COST_MIN)
                     {
                         if (actor.IsPlayerControl)
                         {
-                            waitForAction = true;
+                            waitPlayerAction = true;
 
                             // Actor / Unit is Player Controlled
                             #region Take action
@@ -314,7 +319,7 @@ namespace CanasUvighi
                                 if (actor.Move(CardinalDirection.South))
                                 {
                                     this.turns++;
-                                    waitForAction = false;
+                                    waitPlayerAction = false;
                                 }
                             }
 
@@ -324,7 +329,7 @@ namespace CanasUvighi
                                 if (actor.Move(CardinalDirection.North))
                                 {
                                     this.turns++;
-                                    waitForAction = false;
+                                    waitPlayerAction = false;
                                 }
                             }
 
@@ -334,7 +339,7 @@ namespace CanasUvighi
                                 if (actor.Move(CardinalDirection.West))
                                 {
                                     this.turns++;
-                                    waitForAction = false;
+                                    waitPlayerAction = false;
                                 }
                             }
 
@@ -344,7 +349,7 @@ namespace CanasUvighi
                                 if (actor.Move(CardinalDirection.East))
                                 {
                                     this.turns++;
-                                    waitForAction = false;
+                                    waitPlayerAction = false;
                                 }
                             }
 
@@ -354,7 +359,7 @@ namespace CanasUvighi
                                 if (actor.Move(CardinalDirection.SouthWest))
                                 {
                                     this.turns++;
-                                    waitForAction = false;
+                                    waitPlayerAction = false;
                                 }
                             }
 
@@ -364,7 +369,7 @@ namespace CanasUvighi
                                 if (actor.Move(CardinalDirection.SouthEast))
                                 {
                                     this.turns++;
-                                    waitForAction = false;
+                                    waitPlayerAction = false;
                                 }
                             }
 
@@ -374,7 +379,7 @@ namespace CanasUvighi
                                 if (actor.Move(CardinalDirection.NorthWest))
                                 {
                                     this.turns++;
-                                    waitForAction = false;
+                                    waitPlayerAction = false;
                                 }
                             }
 
@@ -384,14 +389,14 @@ namespace CanasUvighi
                                 if (actor.Move(CardinalDirection.NorthEast))
                                 {
                                     this.turns++;
-                                    waitForAction = false;
+                                    waitPlayerAction = false;
                                 }
                             }
                             #endregion
                         }
                         else
                         {
-                            if (!waitForAction)
+                            if (!waitPlayerAction)
                             {
                                 // Actor / Unit is Non-Player Controlled
                                 actor.Move(AI.DrunkardWalk());
@@ -512,7 +517,7 @@ namespace CanasUvighi
                 int mapX = PC.X - (viewBoxTiles.X / 2);
                 int mapY = PC.Y - (viewBoxTiles.Y / 2);
 
-                // Check the lowerbound
+                // Check the lowerbound X and Y
                 if (mapX < 0) mapX = 0;
                 if (mapY < 0) mapY = 0;
 
@@ -612,7 +617,7 @@ namespace CanasUvighi
                     "TEST-MAP",
                     new FlatArray<Tile>(x, y),
                     this.gameData,
-                    new int[] { 0, 1 }
+                    new int[] { 0 }
                     );
 
                 // Create new GameData
@@ -662,7 +667,7 @@ namespace CanasUvighi
                 this.fovSource = new Point(PC.X + 1, PC.Y);
 
                 // Reset waitForAction state
-                waitForAction = false;
+                waitPlayerAction = false;
                 // Indicate we are currently playing
                 inGame = true;
             }
