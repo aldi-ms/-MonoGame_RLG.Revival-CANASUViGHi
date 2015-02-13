@@ -504,7 +504,7 @@ namespace CanasUvighi
                 #endregion
 
                 #region Draw Map
-                // if other units/moveable objects that are not transparent
+                // if other units/movable objects that are not transparent
                 // move in player's fov, check becomes wrong
                 if (PC.X != fovSource.X || PC.Y != fovSource.Y)
                 {
@@ -514,32 +514,47 @@ namespace CanasUvighi
                 }
 
                 // Get the start coordinates for the Map
-                int mapX = PC.X - (viewBoxTiles.X / 2);
-                int mapY = PC.Y - (viewBoxTiles.Y / 2);
+                Point startTile = new Point(
+                    PC.X - (viewBoxTiles.X / 2),
+                    PC.Y - (viewBoxTiles.Y / 2));
+                //int mapX = PC.X - (viewBoxTiles.X / 2);
+                //int mapY = PC.Y - (viewBoxTiles.Y / 2);
 
                 // Check the lowerbound X and Y
-                if (mapX < 0) mapX = 0;
-                if (mapY < 0) mapY = 0;
+                if (startTile.X < 0)
+                {
+                    startTile.X = 0;
+                }
+
+                if (startTile.Y < 0)
+                {
+                    startTile.Y = 0;
+                }
 
                 // Number of tiles in the gameBox are predefined in 
                 // viewBoxTiles point, values calculated in SetupPredefined();
 
                 // Check the higherbound (X)
-                if (mapX + viewBoxTiles.X >= gameData.MapList[PC.MapID].Height)
-                    mapX = gameData.MapList[PC.MapID].Height - viewBoxTiles.X;
+                if (startTile.X + viewBoxTiles.X >= gameData.MapList[PC.MapID].Height)
+                {
+                    startTile.X = gameData.MapList[PC.MapID].Height - viewBoxTiles.X;
+                }
                 // Check the higherbound (Y)
-                if (mapY + viewBoxTiles.Y >= gameData.MapList[PC.MapID].Width)
-                    mapY = gameData.MapList[PC.MapID].Width - viewBoxTiles.Y;
+                if (startTile.Y + viewBoxTiles.Y >= gameData.MapList[PC.MapID].Width)
+                {
+                    startTile.Y = gameData.MapList[PC.MapID].Width - viewBoxTiles.Y;
+                }
 
                 for (int x = 0; x < viewBoxTiles.X; x++)
                 {
                     for (int y = 0; y < viewBoxTiles.Y; y++)
                     {
                         Vector2 vect = new Vector2(14 + y * TILE_SIZE, 10 + x * TILE_SIZE);
-                        
+                        Point tile = startTile + new Point(x, y);
+
                         spriteBatch.DrawString(
                             K8KurrierFixed20,
-                            gameData.MapList[PC.MapID].TileVisual(mapX + x, mapY + y),
+                            gameData.MapList[PC.MapID].TileVisual(tile),
                             vect,
                             fontColor);
                     }
@@ -617,7 +632,7 @@ namespace CanasUvighi
                     "TEST-MAP",
                     new FlatArray<Tile>(x, y),
                     this.gameData,
-                    new int[] { 0 }
+                    new int[] { 0, 1 }
                     );
 
                 // Create new GameData
@@ -632,6 +647,7 @@ namespace CanasUvighi
                 {
                     for (int j = 0; j < testMap.Width; j++)
                     {
+                        if (!this.gameData.GetTerrain(testMap[i, j].Terrain))
                         if (!testMap.GetTerrain(i, j).IsBlocked)
                         {
                             freePos = new Point(i, j);

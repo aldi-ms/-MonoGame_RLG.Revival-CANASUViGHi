@@ -64,15 +64,6 @@ namespace CanasUvighi
 
         #region Properties
         /// <summary>
-        /// Return a list of all loaded Terrain objects.
-        /// Position in list can be used as Terrain ID.
-        /// </summary>
-        public List<Terrain> TerrainList
-        {
-            get { return this.terrainList; }
-        }
-
-        /// <summary>
         /// Return a list of all loaded Unit objects.
         /// Position in list can be used as Unit ID.
         /// </summary>
@@ -80,8 +71,7 @@ namespace CanasUvighi
         {
             get { return this.unitList; }
 
-            set
-            { this.unitList = value; }
+            set { this.unitList = value; }
         }
 
         public List<Map> MapList
@@ -90,6 +80,15 @@ namespace CanasUvighi
             set { this.mapList = value; }
         }
         #endregion
+
+        /// <summary>
+        /// Return specific Terrain object.
+        ///Index is Terrain ID.
+        /// </summary>
+        public Terrain GetTerrain(int index)
+        {
+            return this.terrainList[index];
+        }
 
         /// <summary>
         /// Save Terrain, NPC, Map Lists as well as the player character.

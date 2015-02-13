@@ -181,10 +181,6 @@ namespace CanasUvighi
                     dX = 1;
                     dY = -1;
                     break;
-
-                default:
-                    break;
-
             }
             #endregion
 
@@ -251,7 +247,7 @@ namespace CanasUvighi
                     this.X = x;
                     this.Y = y;
 
-                    UnitMap.SetUnit(this.X, this.Y, this.ID);
+                    this.UnitMap.SetUnit(this.X, this.Y, this.ID);
                     this.hasSpawned = true;
 
                     // We have spawned the unit successfully

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace CanasUvighi
 {
@@ -64,6 +66,12 @@ namespace CanasUvighi
             set { this.mapTiles = value; }
         }
 
+        public Tile this[Point index]
+        {
+            get { return this.mapTiles[index.X, index.Y]; }
+            set { this.mapTiles[index.X, index.y] = value; }
+        }
+
         public int Height
         {
             get { return this.mapTiles.X; }
@@ -79,19 +87,24 @@ namespace CanasUvighi
             get { return this.id; }
         }
         #endregion
-        
+
+        public void Draw(SpriteBatch spriteBatch, Point center)
+        {
+
+        }
+
         /// <summary>
         /// Get the visual string of the highest priority Tile Layer.
         /// </summary>
         /// <param name="x">X axis of the Tile.</param>
         /// <param name="y">Y axis of the Tile.</param>
         /// <returns>The visual string of the highest priority element.</returns>
-        public string TileVisual(int x, int y)
+        public string TileVisual(Point point)
         {
-            TileLayers layer = mapTiles[x, y].Layers;
+            TileLayers layer = this[point].Layers;
 
             // if the Tile is not visible, return whitespace
-            if (!this.Tiles[x, y].IsVisible)
+            if (!this[point].IsVisible)
                 return " ";
 
             if (layer.Unit != 0)
@@ -121,9 +134,9 @@ namespace CanasUvighi
         /// <param name="x">X axis of the Tile.</param>
         /// <param name="y">Y axis of the Tile.</param>
         /// <returns>Terrain object.</returns>
-        public Terrain GetTerrain(int x, int y)
+        public Terrain GetTerrain(Point point)
         {
-            return gameData.TerrainList[mapTiles[x, y].Terrain];
+            return gameData.TerrainList[this[point].Terrain];
         }
 
         /// <summary>
@@ -132,21 +145,21 @@ namespace CanasUvighi
         /// <param name="x">X axis of the Tile.</param>
         /// <param name="y">Y axis of the Tile.</param>
         /// <returns>True for valid/free, False for invalid/blocked.</returns>
-        public bool CheckTile(int x, int y)
+        public bool CheckTile(Point point)
         {
             // Check if the coordinates are inside the Map bounds.
-            if (x < 0 || x >= this.Height ||
-                y < 0 || y >= this.Width)
+            if (point.X < 0 || point.X >= this.Height ||
+                point.Y < 0 || point.Y >= this.Width)
             {
                 return false;
             }
 
-            if (this.Tiles[x, y].Unit != 0)
+            if (this[point].Unit != 0)
                 return false;
 
             // If the Terrain is blocking the given Tile return false,
             // else return true.
-            return !GetTerrain(x, y).IsBlocked;
+            return !GetTerrain(point).IsBlocked;
         }
 
         #region Layer Control
